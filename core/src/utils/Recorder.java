@@ -1,0 +1,202 @@
+package utils;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
+import com.softnuke.epic.MyGame;
+
+import objects.Ghost;
+import objects.Player;
+
+public class Recorder {
+
+	public static final int ACTION_NONE = 0;
+	public static final int ACTION_LEFT = 1;
+	public static final int ACTION_LEFT_STOP = 2;
+	public static final int ACTION_RIGHT = 3;
+	public static final int ACTION_RIGHT_STOP = 4;
+	public static final int ACTION_JUMP = 5;
+	public static final int ACTION_JUMP_STOP = 6;
+	public static final int ACTION_FIRE = 7;
+	public static final int ACTION_FIRE_STOP = 8;
+	public static final int ACTION_STAY = 9;
+	
+	public static boolean RECORDING = false;
+	public static boolean PLAYING = false;
+	public static final float FRAME_RECORD_DELAY = 0.1f;
+	
+	Player player;
+	int records[] = new int[5];
+	Array<RecordFrame> recordTape;
+	Array<RecordFrame> last_recordTape;
+
+	Ghost ghost;
+	World world;
+	
+	float time = 0;
+	int frame_index = 0;
+	
+	float last_frame_record_time = 0;
+	
+	public Recorder(World w){
+		world = w;
+		
+		ghost = new Ghost(world);
+		player = Player.getInstance();
+		recordTape = new Array<RecordFrame>();
+		last_recordTape = new Array<RecordFrame>();
+		
+	}
+	
+	public void render(SpriteBatch batch){
+		ghost.render(batch);
+	}
+	
+	public void update(float delta){
+		time += delta;
+		frame_index ++;
+		
+		ghost.update(delta);
+
+
+		if(RECORDING){
+			last_frame_record_time+= delta;
+			
+			if(last_frame_record_time > FRAME_RECORD_DELAY){
+				//record new frame
+				last_frame_record_time = 0;
+				
+				if(Player.getInstance().isDead())
+				{
+					RECORDING = false;
+				}
+				else
+				if(Player.getInstance().GOT_HIT)
+					addFrame(ACTION_STAY);//stop ghost
+				else
+					addFrame(-1);//update position
+				
+			}
+		}
+		
+		if(PLAYING){
+			//send events to ghost
+			for(RecordFrame rf:last_recordTape){
+				if(frame_index == rf.frame_number){
+					ghost.updateKeys(rf);	
+					
+					//MyGame.sop("Ghost Move played:"+rf.move);
+				}
+				
+
+				//MyGame.sop("Ghost Moves:"+rf.move+", frame:"+rf.frame_number+", current frame:"+frame_index);
+			}
+			
+			//check if recorded tape is finished
+			if(last_recordTape.get(last_recordTape.size-1).frame_number < frame_index)
+				PLAYING = false;
+		}
+	}
+
+	
+	public void addFrame(int move){
+		if(!RECORDING) return;
+		
+		//MyGame.sop("New move to"+move);
+		RecordFrame frame = new RecordFrame(frame_index, move);
+		
+		frame.posx = Player.getInstance().getPosition().x;
+		frame.posy = Player.getInstance().getPosition().y;
+		
+		frame.vx = Player.getInstance().getBody().getLinearVelocity().x;
+		frame.vy = Player.getInstance().getBody().getLinearVelocity().y;			
+		
+		//frame.weaponAngle = Player.getInstance().getWeapon().getAngle();
+		//frame.weaponAngle = Player.getInstance().getWeapon().getAngularVelocity();
+		
+		recordTape.add(frame);
+		
+	}
+	
+	public void record(){
+		frame_index = 0;
+		RECORDING = true;
+		MyGame.sop("RECORDING");
+		
+		if(recordTape.size == 0)
+		{
+			//recording first time
+			ghost.hide();
+		}
+		
+		recordTape.clear();
+	}
+	
+	public void play(){
+		if(recordTape.size == 0)
+		{
+			//no recording to play
+			MyGame.sop("No recording to play");
+			record();
+			return;
+			
+		}
+		
+		last_recordTape.clear();
+		//System.arraycopy(recordTape, srcPos, dest, destPos, length);
+		last_recordTape.addAll(recordTape);
+		ghost.reset();
+		
+		MyGame.sop("PLAYING");
+		
+		frame_index = 0;
+		PLAYING = true;
+		
+		
+		//also start recording new instance
+		record();
+	}
+	
+	public void dispose(){
+		PLAYING = false;
+		RECORDING = false;
+		
+		last_recordTape.clear();
+		recordTape.clear();
+		frame_index = 0;
+		
+	}
+
+	public void reset() {
+		ghost.reset();
+		RECORDING = false;
+		PLAYING = false;
+	}
+	
+	public class RecordFrame{
+		
+		public int frame_number = -1;
+		public int move = 0;
+		public float vx = 0;
+		public float vy = 0;
+		public float posx = 0;
+		public float posy = 0;
+		
+		//public float weaponAngle = 0;
+		//public float weaponAngleV = 0;
+
+		public RecordFrame(){}
+		
+		public RecordFrame(int f, int m){
+			frame_number = f;
+			move = m;
+		}
+		
+		public void reset(){
+			frame_number = -1;
+			move = 0;
+		}
+	}
+}
+
+

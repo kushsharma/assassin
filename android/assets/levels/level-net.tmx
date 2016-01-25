@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-up" width="60" height="30" tilewidth="32" tileheight="32" nextobjectid="35">
+ <tileset firstgid="1" name="tileset" tilewidth="32" tileheight="32" spacing="2" margin="1" tilecount="256" columns="16">
+  <image source="tileset.png" width="544" height="544"/>
+ </tileset>
+ <layer name="Platform" width="60" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztmEEKgCAQRaW6QOUFKu9/xtwMDMMUlbro+x98GlMYH9qmFEKYO8mek0I/0Bcb+mJDX2zoiw19saEvNvTF5s53yBlzJlXrd/JsgddP119BPt9NRajte3UeT+rafb27iHy+Hn/1lf9Rb/F8vXvfoncJpb6Dytfv767WYzs/mXUt9yG+i8qaEyvXemzno1nXch/ie3QS+mKHvtjp0fcE8iFCQw==
+  </data>
+ </layer>
+ <objectgroup name="PlatformOb">
+  <object id="4" x="0" y="702.667" width="1920" height="257.333"/>
+  <object id="5" x="0" y="0" width="32" height="702.667"/>
+  <object id="6" x="1888" y="0" width="32" height="702.667"/>
+  <object id="7" x="32" y="0" width="1854.67" height="32"/>
+  <object id="9" x="608" y="576" width="480" height="32"/>
+  <object id="12" x="192" y="512" width="320" height="32"/>
+  <object id="13" x="1568" y="576" width="320" height="32"/>
+  <object id="14" x="1184" y="512" width="256" height="32"/>
+  <object id="19" x="512" y="672" width="64" height="32"/>
+  <object id="20" x="1440" y="637.333" width="64" height="66.6667"/>
+ </objectgroup>
+ <objectgroup name="EnemyOb">
+  <object id="21" x="1312" y="608" width="32" height="32"/>
+  <object id="22" x="1152" y="608" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup name="PortalOb">
+  <object id="31" x="1728" y="544" width="96" height="32">
+   <properties>
+    <property name="place" value="exit"/>
+    <property name="type" value="sensor"/>
+   </properties>
+  </object>
+  <object id="32" x="1696" y="576">
+   <properties>
+    <property name="place" value="exit"/>
+    <property name="type" value="body"/>
+   </properties>
+   <polygon points="0,0 32,-32 128,-32 160,0"/>
+  </object>
+  <object id="33" x="128" y="672" width="96" height="32">
+   <properties>
+    <property name="place" value="entry"/>
+    <property name="type" value="sensor"/>
+   </properties>
+  </object>
+  <object id="34" x="96" y="704">
+   <properties>
+    <property name="place" value="entry"/>
+    <property name="type" value="body"/>
+   </properties>
+   <polygon points="0,0 32,-32 128,-32 160,0"/>
+  </object>
+ </objectgroup>
+</map>

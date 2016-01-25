@@ -1,0 +1,8 @@
+Gimp Spritesheet generator
+Padding 1
+spacing 0
+gutter on
+
+Tiled 
+margin 1
+spacing 2
