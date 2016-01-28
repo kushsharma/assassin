@@ -37,12 +37,12 @@ public class Friend {
 	private boolean IMMORTAL = false;
 	private boolean PLAYER_DRAW = true;
 	
-	private float height = 1.0f * 0.7f, width = 0.5f * 0.7f;
+	private float height = 1.0f * 0.9f, width = 0.5f * 0.9f;
 	public Vector2 netPosition = new Vector2();
 	private Vector2 position = new Vector2();
 	Vector2 startPos = new Vector2();
-	private float Speed = 4.6f * 0.7f; // 4.6f
-	private float Jump = 1.85f * 0.5f;
+	private float Speed = 4.6f * 0.8f; // 4.6f
+	private float Jump = 1.45f;
 	private float gravityScale = 0f;
 	
 	public boolean GLOWING = false;

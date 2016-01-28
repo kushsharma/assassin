@@ -42,6 +42,7 @@ import com.softnuke.epic.MyGame;
 import Screens.MainMenuScreen;
 import utils.AssetLord;
 import utils.CameraShake;
+import utils.Cinema;
 import utils.GameState;
 import utils.LevelGenerate;
 import utils.MyContactListener;
@@ -73,21 +74,23 @@ import utils.ScoreManager;
  * update friend and ghost
  * create two different pools for bullets - maybe not
  * Blood explosion
- * better level complete portals, add lights in a tunnle
- * draw sword swing animation one more and play it if sword is already in motion
+ * better level complete portals, add lights in the tunnel
+ * draw sword swing animation one more and play it if sword is already in motion _ done
+ * bug: portal active even if first switch is active _ fixed
+ * bug: recorder doesn't work, when last_rec == rec in count _ fixed
  * 
  */
 public class GameScreen implements Screen {
 
     public static boolean DEBUG = false;
-    public static boolean SOFT_DEBUG = true;
+    public static boolean SOFT_DEBUG = false;
     public static boolean DISABLE_ADS = true;
 
     public static boolean RENDER_LIGHTS = true;
     public static boolean BACKGROUND_SHADER = false; //no use right now
     public static boolean BACKGROUND_PARALLAX = false;
-    public static boolean BACKGROUND_PARTICLES = false;
-    public static boolean PLAYER_PARTICLES = false;
+    public static boolean BACKGROUND_PARTICLES = true;
+    public static boolean PLAYER_PARTICLES = true;
     public static boolean BACKGROUND_MUSIC = true;
     
     public static boolean MULTIPLAYER = true;
@@ -120,6 +123,8 @@ public class GameScreen implements Screen {
 	float Fade = 1f;
 	Sprite blackFade;
 
+	int lastScore = 0, levelScore = 0;
+
 	public Recorder recorder;
 	MyInputProcessor inputProcessor;
 	CameraShake cameraShake;
@@ -139,6 +144,7 @@ public class GameScreen implements Screen {
 	Group controls;
 	Image fireImage, pauseBack, coinStarImage, enemyStarImage;
 	Background background;
+	public Cinema cinema;
 
 	private TextureAtlas gameAtlas;
 	
@@ -147,7 +153,8 @@ public class GameScreen implements Screen {
 		MyGame.sop("level loading:"+lno);
 		//TODO
 		LevelGenerate.CURRENT_LEVEL = lno;
-		if(lno == 2){
+		if(lno < 0){				
+			//negative values for multiplayer levels
 			MULTIPLAYER = true;
 		}
 		else
@@ -223,7 +230,10 @@ public class GameScreen implements Screen {
     public void createObjects(){
     	//create scoremanager before cinema
 		scoreManager = new ScoreManager();
-
+		
+		//create cinema before level
+		cinema = new Cinema(stage, camera);
+		
 		//create player before than level
 		player = new Player(world);
 		
@@ -347,6 +357,9 @@ public class GameScreen implements Screen {
 		//added score label before cinema
 		stage.addActor(scoreLabel);
 		
+		//used to prioritize its view over score
+		cinema.addDialogue();
+		
 		createPauseScreen();
 		
 		createLevelClearScreen();
@@ -379,6 +392,7 @@ public class GameScreen implements Screen {
 				serverSelectGroup.setVisible(false);				
 			}
 		});
+		
 		serverSelectGroup.addActor(serverList);
 		stage.addActor(serverSelectGroup);
 	}
@@ -431,6 +445,14 @@ public class GameScreen implements Screen {
 		networkSelectGroup.addActor(beServer);
 		
 		networkSelectGroup.addActor(beClient);
+
+		
+		smallStyle.font = fontSmall;
+		TextButton notes = new TextButton("Connect both device to same\n wifi network or create a hotspot\n in one device and request another\n one to join.\n\nUnder Construction", smallStyle);
+		//notes.setPosition(server, y, alignment);
+		networkSelectGroup.addActor(notes);
+
+
 		
 		stage.addActor(networkSelectGroup);
 	}
@@ -481,7 +503,7 @@ public class GameScreen implements Screen {
 		levelClearScreen.addActor(menuText);		
 
 		
-		TextButton coinsCollected = new TextButton("MILK COLLECTED", smallStyle);
+		TextButton coinsCollected = new TextButton("COINS COLLECTED", smallStyle);
 		coinsCollected.align(Align.left);
 		coinsCollected.setPosition(WIDTH / 4, HEIGHT * 0.7f);
 		
@@ -571,6 +593,8 @@ public class GameScreen implements Screen {
 		
 		levelClearScreen.setVisible(true);
 		
+		//if you are stupid and want to play alone, just dont bother to create server then
+		networkSelectGroup.setVisible(false);
 		
 		//save !!
 		scoreManager.save(0);
@@ -674,7 +698,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-    	Gdx.gl.glClearColor(0.8f, 0.8f, 0.8f, 1);
+    	Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
     	Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     	
     	if(CURRENT_STATE != GameState.STOPPED)
@@ -717,7 +741,7 @@ public class GameScreen implements Screen {
 			
 			batch.setProjectionMatrix(camera.combined);
 			batch.begin();
-			//cinema.render(batch);
+			cinema.render(batch);
 			
 			//blend function will become bad
 			level.renderParticles(batch);
@@ -754,9 +778,40 @@ public class GameScreen implements Screen {
 		}
 		
 		stage.draw();
+		
+		//cinema.render(batch);
+		cinema.update(delta);
+		
+		batch.setProjectionMatrix(cameraui.combined);
+		batch.begin();
+		cinema.renderUI(batch);
+		batch.end();
     }
+    
 
     private void update(float delta) {
+    	
+    	//update score text
+		if(lastScore < scoreManager.USER_SCORE)
+		{
+			if(scoreManager.USER_SCORE < 10)
+				scoreLabel.setText("000000".concat(String.valueOf(scoreManager.USER_SCORE)));
+			else if(scoreManager.USER_SCORE < 100)
+				scoreLabel.setText("00000".concat(String.valueOf(scoreManager.USER_SCORE)));
+			else if(scoreManager.USER_SCORE < 1000)
+				scoreLabel.setText("0000".concat(String.valueOf(scoreManager.USER_SCORE)));
+			else if(scoreManager.USER_SCORE < 10000)
+				scoreLabel.setText("000".concat(String.valueOf(scoreManager.USER_SCORE)));
+			else if(scoreManager.USER_SCORE < 100000)
+				scoreLabel.setText("00".concat(String.valueOf(scoreManager.USER_SCORE)));
+			else if(scoreManager.USER_SCORE < 1000000)
+				scoreLabel.setText("0".concat(String.valueOf(scoreManager.USER_SCORE)));
+			else if(scoreManager.USER_SCORE < 10000000)
+				scoreLabel.setText(String.valueOf(scoreManager.USER_SCORE));
+			
+			lastScore = scoreManager.USER_SCORE;
+		}
+    			
 		stage.act(delta);
 		
 		if(player.isDead()){// && !levelClearScreen.isVisible()){
@@ -783,10 +838,14 @@ public class GameScreen implements Screen {
 		
 	}
     
-	public void reset(boolean b) {
-		if(!b){
+	public void reset(boolean newLevel) {
+		if(!newLevel){
 			//game is not closed
 			GameScreen.CURRENT_STATE = GameState.RUNNING;
+			//reset user score
+			scoreManager.reset();
+			lastScore = 0;	
+			scoreLabel.setText("0000000");
 			
 		}
 		SLOW_MOTION = false;
@@ -806,22 +865,31 @@ public class GameScreen implements Screen {
 	}
 
     private void updateCameraMovement(float delta) {
-    	float offsetX = 4; //player and camera difference
+    	float offsetX = 4	; //player and camera difference
+    	//float offsetY = 1;
 		float lerp = 5f;
 		
 		Vector3 position = this.getCamera().position;
-
+		
+		//max upper bound
+		//fix this if you can
+		//float uy = level.MAP_UPPER_BOUND/4f - offsetY;
+		//float plY = Math.min(uy, player.getPosition().y);
+		
+		float plY = player.getPosition().y;
 		//max lower bound
-		float y = Interpolation.linear.apply(position.y, Math.max(player.getPosition().y, 6), delta*lerp);
+		float y = Interpolation.linear.apply(position.y, Math.max(plY, 6), delta*lerp);
 		position.y = y;
 
 		//max right bound			
-		float plX = Math.min(level.MAP_RIGHT_BOUND - 10, player.getPosition().x + offsetX);
+		float plX = Math.min(level.MAP_RIGHT_BOUND - 14.7f, player.getPosition().x + offsetX);
 		//max left bound
 		float x = Interpolation.linear.apply(position.x, Math.max(plX, 10), delta*lerp);
 		position.x = x;
 		
 		camera.update();
+		
+		//MyGame.sop("CAMY"+y+" UP"+level.MAP_UPPER_BOUND);
 	}
 
 	private void doPhysics(float delta) {
@@ -900,7 +968,7 @@ public class GameScreen implements Screen {
 		batch.dispose();
 		if(DEBUG) canvas.dispose();
 		player.dispose();
-		level.dispose();
+		level.dispose(false);
 		world.dispose();
 		if(friend != null) friend.dispose();
 		if(DEBUG) debugRenderer.dispose();
@@ -938,8 +1006,7 @@ public class GameScreen implements Screen {
 	}
 
 	public void shakeThatAss(boolean b) {
-		// TODO Auto-generated method stub
-		
+		cameraShake.shakeLight(true);
 	}
 
 	public void hideControls(){

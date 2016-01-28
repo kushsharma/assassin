@@ -37,7 +37,7 @@ import utils.MyInputProcessor.CONTROL;
 public class Player {
 
 	public static Player _player = null;
-	private boolean IMMORTAL = false;
+	private boolean IMMORTAL = true;
 	private boolean PLAYER_DRAW = true;
 	
 	private float height = 1.0f * 0.9f, width = 0.5f * 0.9f;
@@ -66,6 +66,7 @@ public class Player {
 	public static int WEAPON_DAMAGE = 5;
 	
 	public boolean SWINGING = false; //if player is swinging right now
+	public boolean SWING_COMBO = false; //if player swinged twice
 	public boolean SWING_STORED = false; //player is swinging and haven't hurt anyone till now
 	private float swing_time = 0;
 	public static final float TOTAL_SWING_TIME = 0.5f;	//time in swing motion
@@ -113,7 +114,7 @@ public class Player {
 	float lastJumpTime = 0;
 	float deathClock = 0;
 	float winClock = 0;
-	Animation idleAnime, moveAnime, jumpAnime, swingAnime, fireIdleAnime, fireMoveAnime, megaIdleAnime, megaMoveAnime, hitAnime, teleportOut, teleportIn;
+	Animation idleAnime, moveAnime, jumpAnime, swingAnime, swingComboAnime, fireIdleAnime, fireMoveAnime, megaIdleAnime, megaMoveAnime, hitAnime, teleportOut, teleportIn;
 
 	AssetLord Assets = GameScreen.getInstance().getAssetLord();
 	TextureAtlas gameAtlas;
@@ -288,6 +289,7 @@ public class Player {
 		moveAnime = new Animation(0.05f, playerMoveSheet);
 		moveAnime.setPlayMode(PlayMode.LOOP);		
 		
+		
 		TextureRegion playerSwingSheet[] = new TextureRegion[7];		
 		playerSwingSheet[0] = gameAtlas.findRegion("player-swing-1");
 		playerSwingSheet[1] = gameAtlas.findRegion("player-swing-2");
@@ -298,8 +300,27 @@ public class Player {
 		playerSwingSheet[6] = gameAtlas.findRegion("player-swing-6");
 		
 		swingAnime = new Animation(0.05f, playerSwingSheet);
-		swingAnime.setPlayMode(PlayMode.LOOP);		
+		swingAnime.setPlayMode(PlayMode.NORMAL);
 		
+		
+		TextureRegion playerSwingComboSheet[] = new TextureRegion[4];		
+		playerSwingComboSheet[0] = gameAtlas.findRegion("player-swing-7");
+		playerSwingComboSheet[1] = gameAtlas.findRegion("player-swing-8");
+		playerSwingComboSheet[2] = gameAtlas.findRegion("player-swing-9");
+		playerSwingComboSheet[3] = gameAtlas.findRegion("player-swing-10");
+		//playerSwingComboSheet[4] = gameAtlas.findRegion("player-swing-10");
+		swingComboAnime = new Animation(0.1f, playerSwingComboSheet);
+		swingComboAnime.setPlayMode(PlayMode.NORMAL);
+		
+		
+		TextureRegion playerHitSheet[] = new TextureRegion[4];
+		playerHitSheet[0] = gameAtlas.findRegion("hit-anime-player-1");//new TextureRegion(tHit1);
+		playerHitSheet[1] = gameAtlas.findRegion("hit-anime-2");//new TextureRegion(tHit2);
+		playerHitSheet[2] = gameAtlas.findRegion("hit-anime-3");//new TextureRegion(tHit3);
+		playerHitSheet[3] = gameAtlas.findRegion("hit-anime-4");//new TextureRegion(tHit4);
+		
+		hitAnime = new Animation(0.1f, playerHitSheet);
+		hitAnime.setPlayMode(PlayMode.NORMAL);
 		
 		
 		glow = new Sprite(gameAtlas.findRegion("playerglow"));
@@ -307,6 +328,15 @@ public class Player {
 		glow.setPosition(body.getPosition().x - glow.getWidth()/2, body.getPosition().y - glow.getHeight()/2);
 		glow.setColor(1f,1f,1f, 0.5f);
 		glow.setOrigin(glow.getWidth()/2, glow.getHeight()/2);
+		
+		
+		hitSprite = new Sprite();
+		hitSprite.setSize(width*3f, height * 1.2f); //.setSize(width*1.5f, width*1.5f);
+		hitSprite.setOrigin(hitSprite.getWidth()/2, hitSprite.getHeight()/2);
+		
+		//particle
+		jumpParticle = gameScreen.getAssetLord().manager.get(AssetLord.player_jump_particle,ParticleEffect.class);
+		jumpParticle.setEmittersCleanUpBlendFunction(false);
 	}
 	
 	public void render(ShapeRenderer canvas){
@@ -340,11 +370,23 @@ public class Player {
 		}
 		
 		if(SWINGING){
-			playerSprite.setRegion(swingAnime.getKeyFrame(swing_time));
-			
-			//disable on last frame
-			if(swingAnime.getKeyFrame(swing_time) == swingAnime.getKeyFrames()[swingAnime.getKeyFrames().length-1])
-				SWINGING = false;
+			if(SWING_COMBO){
+				playerSprite.setRegion(swingComboAnime.getKeyFrame(swing_time));
+				
+				//disable on last frame
+				if(swingComboAnime.getKeyFrame(swing_time) == swingComboAnime.getKeyFrames()[swingComboAnime.getKeyFrames().length-1])
+				{
+					SWINGING = false;
+					SWING_COMBO = false;
+				}
+			}
+			else{
+				playerSprite.setRegion(swingAnime.getKeyFrame(swing_time));
+				
+				//disable on last frame
+				if(swingAnime.getKeyFrame(swing_time) == swingAnime.getKeyFrames()[swingAnime.getKeyFrames().length-1])
+					SWINGING = false;				
+			}
 		}
 		
 		//fire_hold < BULLET_HOLD_TIME/4
@@ -352,6 +394,40 @@ public class Player {
 			playerSprite.setRegion(gameAtlas.findRegion("player-hand-1"));
 		}
 		
+		//for hit animation
+		hitSprite.setRegion(hitAnime.getKeyFrame(deathClock));
+		if(GOT_HIT)
+		{
+			if(!LEFT_DIRECTION)	
+				hitSprite.setFlip(true, false);
+			
+			//if(LevelGenerate.WORLD_FLIPPED)
+			//	hitSprite.setFlip(playerSprite.isFlipX(), true);
+						
+			if(hitAnime.getKeyFrameIndex(deathClock) == 0)
+			{
+				hitSprite.setRotation(0);
+				hitSprite.setSize(width*3.4f, width*2.5f);
+				hitSprite.setOrigin(hitSprite.getWidth()/2, hitSprite.getHeight()/2);
+				hitSprite.setPosition(position.x - hitSprite.getWidth()*0.55f, position.y - hitSprite.getHeight()*0.5f);
+				
+			}
+			else				
+			{
+				if(hitAnime.getKeyFrameIndex(deathClock) == 3)
+					hitSprite.setRotation(45);
+				else
+					hitSprite.setRotation((deathClock * 1000)%360);
+				
+				hitSprite.setSize(width*2.5f, width * 2.5f);
+				hitSprite.setOrigin(hitSprite.getWidth()/2, hitSprite.getHeight()/2);
+				hitSprite.setPosition(position.x - hitSprite.getWidth()/2, position.y - hitSprite.getHeight()/2);
+
+			}
+			
+			if(!hitAnime.isAnimationFinished(deathClock))
+				hitSprite.draw(batch);
+		}
 		
 		if(LEFT_DIRECTION)	
 			playerSprite.setFlip(true, false);
@@ -366,8 +442,8 @@ public class Player {
 	
 	public void renderParticles(SpriteBatch batch){
 
-		//if(GameScreen.PLAYER_PARTICLES)
-		//	jumpParticle.draw(batch);
+		if(GameScreen.PLAYER_PARTICLES)
+			jumpParticle.draw(batch);
 		
 	}
 	
@@ -400,7 +476,7 @@ public class Player {
 			swing_time += delta;
 			
 			if(swing_time > TOTAL_SWING_TIME){
-				SWINGING = false;
+				SWINGING = SWING_COMBO = false;
 				swing_time = 0;
 			}
 			
@@ -447,8 +523,8 @@ public class Player {
 			CONTROLS = false;
 		}
 		
-		//if(GameScreen.PLAYER_PARTICLES)
-		//	jumpParticle.update(delta);
+		if(GameScreen.PLAYER_PARTICLES)
+			jumpParticle.update(delta);
 				
 		if(FLYING)
 		{
@@ -479,7 +555,7 @@ public class Player {
 		weapon.setAngularVelocity(0);
 		*/	
 		
-		GOT_HIT = LEFT_DIRECTION = DEAD = TELEPORTING_OUT = SWINGING = SWING_STORED = FIRING = false;
+		GOT_HIT = LEFT_DIRECTION = DEAD = TELEPORTING_OUT = SWINGING = SWING_COMBO = SWING_STORED = FIRING = false;
 
 		TELEPORTING_IN = true;
 		
@@ -505,6 +581,10 @@ public class Player {
 	
 	public void swingWeapon(){
 		if(!CAN_FIRE) return;
+		
+		if(SWINGING){
+			SWING_COMBO = true;
+		}
 		
 		SWINGING = true;
 		swing_time = 0;
@@ -631,8 +711,8 @@ public class Player {
 	
 	/** Starts jumping effect**/
 	public void startJumpEffect(){
-		//jumpParticle.setPosition(position.x, position.y - height/2);
-		//jumpParticle.start();
+		jumpParticle.setPosition(position.x, position.y - height/2);
+		jumpParticle.start();
 	}	
 	
 	public void makeJump() {
@@ -642,7 +722,8 @@ public class Player {
 			
 			body.applyLinearImpulse(0, Jump, body.getWorldCenter().x, body.getWorldCenter().y, true);
 			
-			CAN_JUMP = false;
+			if(!IMMORTAL)
+				CAN_JUMP = false;
 		}
 	}
 	

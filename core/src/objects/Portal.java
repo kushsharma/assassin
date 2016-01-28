@@ -3,7 +3,9 @@ package objects;
 import Screens.GameScreen;
 import utils.AssetLord;
 import utils.LevelGenerate;
+import box2dLight.ConeLight;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -45,6 +47,7 @@ public class Portal {
 	float bHEIGHT = MyGame.bHEIGHT;
 	float bWIDTH = MyGame.bWIDTH;
 	
+	ConeLight cLight;
 	ParticleEffect effect;
 	//Light light;
 	//false means not visible
@@ -109,11 +112,10 @@ public class Portal {
 				
 		if(GameScreen.PLAYER_PARTICLES){
 			//change this later
-			effect = new ParticleEffect(GameScreen.getInstance().getAssetLord().manager.get(AssetLord.portal_particle, ParticleEffect.class));
-			//effect.scaleEffect(MyGame.PTP);
-			effect.setPosition(position.x - width/4, position.y + height/2);
-			effect.start();
-			effect.setEmittersCleanUpBlendFunction(false);
+			//effect = new ParticleEffect(GameScreen.getInstance().getAssetLord().manager.get(AssetLord.portal_particle, ParticleEffect.class));
+			//effect.setPosition(position.x - width/4, position.y + height/2);
+			//effect.start();
+			//effect.setEmittersCleanUpBlendFunction(false);
 
 		}
 		
@@ -122,6 +124,16 @@ public class Portal {
 		rays.setPosition(position.x - rays.getWidth()*0.52f, position.y - height/4);
 		rays.setColor(0.5f, 0.5f, 0.3f,0.5f);
 		create();
+		
+		float lx = position.x;
+		float ly = position.y;
+		if(PORTAL_TYPE == ENTRY)
+			cLight = new ConeLight(LevelGenerate.getInstance().rayHandler, 64, Color.GOLD, 5, lx - width/2 , ly + height/4, 0, 180);
+		else
+			cLight = new ConeLight(LevelGenerate.getInstance().rayHandler, 64, Color.GREEN, 7, lx, ly - height/4, 90, 90);
+		
+		cLight.setSoft(true);
+		
 	}
 	
 	private void create(){
@@ -167,6 +179,7 @@ public class Portal {
 		if(!visible)
 			return;
 		
+		
 		//check if it is gone off the screen without user consumption
 		//if(body.getPosition().y+height < -bWIDTH)
 		//	setOffScreen(false);
@@ -181,8 +194,8 @@ public class Portal {
 		
 		if(ENABLED)
 		{
-			effect.draw(batch);
-			rays.draw(batch, 0.6f);
+			//effect.draw(batch);
+			//rays.draw(batch, 0.6f);
 		}
 		
 	}
@@ -195,9 +208,12 @@ public class Portal {
 		else
 			visible = false;
 		
-
-		if(ENABLED && GameScreen.PLAYER_PARTICLES)		
-			effect.update(delta);
+		if(ENABLED)
+			cLight.setColor(Color.LIGHT_GRAY);
+		else
+			cLight.setColor(Color.RED);
+		//if(ENABLED && GameScreen.PLAYER_PARTICLES)		
+		//	effect.update(delta);
 	}
 	
 	public void reset(){
@@ -231,7 +247,7 @@ public class Portal {
 		
 				
 		if(GameScreen.PLAYER_PARTICLES){
-			effect.allowCompletion();
+			//effect.allowCompletion();
 		}
 		
 
@@ -267,7 +283,7 @@ public class Portal {
 		world.destroyBody(body);
 		
 		if(GameScreen.PLAYER_PARTICLES){
-			effect.dispose();
+			//effect.dispose();
 		}
 	}
 }

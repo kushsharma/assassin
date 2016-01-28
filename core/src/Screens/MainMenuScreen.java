@@ -205,7 +205,7 @@ public class MainMenuScreen implements Screen, ActionListener{
 		
 		stage.addActor(topbackI);
 		
-		TextureRegion tLogoBack = atlas.findRegion("white");
+		TextureRegion tLogoBack = atlas.findRegion("title");
 		
 		logobackI = new Image(tLogoBack);
 		logobackI.setSize(HEIGHT/5 * logobackI.getWidth()/logobackI.getHeight(), HEIGHT/5);
@@ -358,7 +358,96 @@ public class MainMenuScreen implements Screen, ActionListener{
 		
 		
 		
+		TextButtonStyle playStyle = new TextButtonStyle();
+		playStyle.font = fontMedium;
+		playStyle.fontColor = Color.WHITE;
+		playStyle.pressedOffsetX = 2;
+		playStyle.pressedOffsetY = -2;
 		
+		playStyle.down = ninePatchDrawable;
+		playStyle.up = ninePatchDrawable;
+		
+		
+		TextButton singlePlayer = new TextButton("Single Player", playStyle);	
+		singlePlayer.setSize(WIDTH/3, singlePlayer.getHeight());
+		singlePlayer.setPosition(WIDTH/2 + WIDTH/4 - singlePlayer.getWidth()/2, HEIGHT/2 + HEIGHT/6 - singlePlayer.getHeight()/2);
+		singlePlayer.addListener(new InputListener(){
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button){
+				//call fade out effect
+				//ScreenFinished = true;
+				
+				menu.addAction(Actions.moveTo(WIDTH/2 - menu.getWidth()/2, 0 - HEIGHT/2 - menu.getHeight()/2,
+						0.5f, Interpolation.fade));				
+				menu.addAction(Actions.fadeOut(0.5f));
+				
+				levelTable.addAction(Actions.moveTo(WIDTH/2 -levelTable.getWidth()/2 , HEIGHT/2 -levelTable.getHeight()/2,
+						0.5f, Interpolation.fade));
+				levelTable.addAction(Actions.fadeIn(0.5f));
+				
+				
+				CURRENT_VIEW = 3;
+				
+				return true;
+			}
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+				MyGame.sop("Play Single");
+			}
+		});
+		singlePlayer.padLeft(5f);
+		singlePlayer.padRight(5f);
+		menu.addActor(singlePlayer);
+		
+		
+		TextButton multiPlayer = new TextButton("Multiplayer LAN", playStyle);
+		multiPlayer.setSize(WIDTH/3, multiPlayer.getHeight());
+		multiPlayer.setPosition(WIDTH/2 + WIDTH/4 - multiPlayer.getWidth()/2, HEIGHT/2 - multiPlayer.getHeight()/2);
+		multiPlayer.addListener(new InputListener(){
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button){
+								
+				levelNo = -1;
+				
+				//start screen fade effect to start game
+				ScreenFinished = true;
+				
+				return true;
+			}
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+				MyGame.sop("Play Multi");
+			}
+		});
+		multiPlayer.padLeft(5f);
+		multiPlayer.padRight(5f);
+		menu.addActor(multiPlayer);
+		
+		
+		TextButton optionsButton = new TextButton("Options", playStyle);
+		optionsButton.setSize(WIDTH/3, optionsButton.getHeight());
+		optionsButton.setPosition(WIDTH/2 + WIDTH/4 - optionsButton.getWidth()/2, HEIGHT/2 - HEIGHT/6 - optionsButton.getHeight()/2);
+		optionsButton.addListener(new InputListener(){
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button){
+				//call fade out effect
+				//ScreenFinished = true;
+				
+				menu.addAction(Actions.moveTo(0 - WIDTH/2 - menu.getWidth()/2, HEIGHT/2 - menu.getHeight()/2,
+						0.5f, Interpolation.fade));				
+				menu.addAction(Actions.fadeOut(0.5f));
+				
+				optionsTable.addAction(Actions.moveTo(0, 0, 0.5f, Interpolation.fade));
+				optionsTable.addAction(Actions.fadeIn(0.5f));
+				
+				CURRENT_VIEW = 1;
+				
+				return true;
+			}
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button){
+				MyGame.sop("Options");
+			}
+		});
+		optionsButton.padLeft(5f);
+		optionsButton.padRight(5f);
+		menu.addActor(optionsButton);
+		
+		/*
 		TextureRegion playTex = atlas.findRegion("play-image");
 		
 		Image playImage = new Image(playTex);
@@ -444,7 +533,7 @@ public class MainMenuScreen implements Screen, ActionListener{
 		});
 		
 		menu.addActor(storeImage);
-		
+		*/
 		
 		//Texture rateTex = new Texture("ui/star207.png");
 		//rateTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);

@@ -182,11 +182,11 @@ public class Enemy {
 		playerSprite = new Sprite(atlas.findRegion("enemy-walk-1"));
 		getSkinTexture();		
 		playerSprite.setSize(width*2, height*2);
-		/*
+		
 		//particle
 		killParticle = new ParticleEffect(gameScreen.getAssetLord().manager.get(AssetLord.enemy_kill_particle,ParticleEffect.class));
 		killParticle.setEmittersCleanUpBlendFunction(false);
-		*/
+		
 	}
 	
 	private void getSkinTexture(){
@@ -290,8 +290,8 @@ public class Enemy {
 			
 		//}
 		
-		//if(GameScreen.PLAYER_PARTICLES)
-		//	killParticle.update(delta);
+		if(GameScreen.PLAYER_PARTICLES)
+			killParticle.update(delta);
 	}
 	
 	public static Enemy getInstance(){
@@ -329,8 +329,8 @@ public class Enemy {
 	public void setOffScreen(){
 		if(!DEAD) return;
 		
-		//if(GameScreen.PLAYER_PARTICLES)
-		//	killParticle.start();
+		if(GameScreen.PLAYER_PARTICLES)
+			killParticle.start();
 
 		visible = false;
 		body.setTransform(-bWIDTH, -bHEIGHT, 0);
@@ -383,7 +383,7 @@ public class Enemy {
 		world.destroyBody(body);
 		
 		if(GameScreen.PLAYER_PARTICLES){
-			//killParticle.dispose();
+			killParticle.dispose();
 		}
 	}
 
@@ -392,6 +392,7 @@ public class Enemy {
 		position.y = startPos.y;
 		
 		health = HEALTH;
+		killParticle.allowCompletion();
 		
 		body.setActive(true);
 		DEAD = false;

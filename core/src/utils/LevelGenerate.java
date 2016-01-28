@@ -14,8 +14,10 @@ import objects.Portal;
 import objects.Switch;
 import utils.MyInputProcessor.CONTROL;
 import Screens.GameScreen;
+import box2dLight.RayHandler;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -58,7 +60,7 @@ public class LevelGenerate {
 	public static boolean WORLD_FLIPPED = false; //if gravity is flipped
 	public static boolean LEVEL_LOADED = false;
 	public static int CURRENT_LEVEL = 1;
-	public static int MAX_LEVELS = 2;
+	public static int MAX_LEVELS = 3;
 	
 	TiledMap tileMap;
 	TmxMapLoader tileLoader;
@@ -84,10 +86,13 @@ public class LevelGenerate {
 	public static short CATEGORY_POWERUP = 1<<4;
 	public static short CATEGORY_BULLET = 1<<5;
 	public static short CATEGORY_UTILS = 1<<6;
-
+	
+	public static boolean CURRENT_LEVEL_CLEARED = false;
 	private float gametime = 0;
 	private float last_bullet = 0; //time since last bullet was fired
-	public int MAP_RIGHT_BOUND = 50;
+	public float MAP_RIGHT_BOUND = 50;
+	public float MAP_UPPER_BOUND = 20;
+
 	public HashMap<CONTROL, Boolean> pKeys = null;
 	TaskQueue taskQueue = new TaskQueue();
 	AssetLord Assets = GameScreen.getInstance().getAssetLord();
@@ -107,6 +112,9 @@ public class LevelGenerate {
 	
 	//Switch levelSwitch = null;
 	BloodManager bloodManager;	
+	public RayHandler rayHandler;
+	
+	Music gameMusic = null;
 	
 	public LevelGenerate(OrthographicCamera cam, World w, SpriteBatch b){
 		_level = this;
@@ -114,19 +122,39 @@ public class LevelGenerate {
 		world = w;
 		batch = b;
 		
-		PTP = 1/75f;
+		PTP = 1/70f;
 
 		tileLoader = new TmxMapLoader();
 		tmRenderer = new OrthogonalTiledMapRenderer(tileMap, PTP, batch);
 		
-		MyGame.sop("Generating Tiled Map of Level..."+CURRENT_LEVEL);
+		//prepare blood
+		bloodManager = new BloodManager(world);
 		
+		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("rinse.mp3"));
+		gameMusic.setLooping(true);
+		gameMusic.setVolume(0.5f);
+		
+		prepareBullets();
+		
+		levelTiled();
+	}
+	
+	public void levelTiled(){
+			MyGame.sop("Generating Tiled Map of Level..."+CURRENT_LEVEL);
+				
 		try {
 			switch(CURRENT_LEVEL){			
 			case 1:
-				tileMap = tileLoader.load("levels/level-zero.tmx");
+				tileMap = tileLoader.load("levels/level-1.tmx");
 				break;
 			case 2:
+				tileMap = tileLoader.load("levels/level-2.tmx");
+				break;
+			case 3:
+				tileMap = tileLoader.load("levels/level-3.tmx");
+				break;
+			case -1:
+				//negative values for multiplayer levels
 				tileMap = tileLoader.load("levels/level-net.tmx");
 				break;
 			default:
@@ -141,19 +169,23 @@ public class LevelGenerate {
 		}		
 		
 		MapProperties prop = tileMap.getProperties();		
-		MAP_RIGHT_BOUND = prop.get("width", Integer.class)/2;
+		MAP_RIGHT_BOUND = (float)prop.get("width", Integer.class)/2f;
+		MAP_UPPER_BOUND = (float)prop.get("height", Integer.class);
 		
+		rayHandler = new RayHandler(world, WIDTH/5, HEIGHT/5);
+		rayHandler.setAmbientLight(0.95f);
+		rayHandler.setBlur(false);
+
 		buildShapes(tileMap, world);		
 		tmRenderer.setMap(tileMap);
+		
+		GameScreen.getInstance().cinema.levelUpdate(CURRENT_LEVEL);
 		
 		LEVEL_LOADED = true;		
 		GameScreen.CURRENT_STATE = GameState.RUNNING;
 		
-		//prepare blood
-		bloodManager = new BloodManager(world);
-		
-		prepareBullets();
-
+		if(gameMusic != null && GameScreen.BACKGROUND_MUSIC)
+			gameMusic.play();
 	}
 	
 	private void prepareBullets(){
@@ -407,7 +439,7 @@ public class LevelGenerate {
 	            coinsPool.add(c);
 	        }
       	}
-       
+
        if(map.getLayers().get("LaserOb") != null){
 	        MapObjects coins = map.getLayers().get("LaserOb").getObjects();
 	        for(MapObject object : coins) {
@@ -442,10 +474,34 @@ public class LevelGenerate {
 	}
 	
 	public void loadNextLevel() {
-		// TODO Auto-generated method stub
-		
+		if(CURRENT_LEVEL < MAX_LEVELS)
+		{
+			LEVEL_LOADED = false;
+			CURRENT_LEVEL++;
+			
+			clearOldLevel();
+			levelTiled();
+			GameScreen.getInstance().reset(true);
+			
+			CURRENT_LEVEL_CLEARED = false;
+			
+			//start music
+			if(GameScreen.BACKGROUND_MUSIC){
+				if(CURRENT_LEVEL > 0)
+				{
+					if(GameScreen.BACKGROUND_MUSIC && gameMusic != null)			
+						gameMusic.play();
+				}
+			}
+		}		
 	}
 	
+	private void clearOldLevel() {
+		//soft dispose only those who belong to this level
+				
+		dispose(true);
+	}
+
 	public static LevelGenerate getInstance(){
 		return _level;
 	}
@@ -491,6 +547,8 @@ public class LevelGenerate {
 		
 		batch.end();
 		
+		rayHandler.setCombinedMatrix(camera.combined, camera.position.x, camera.position.y, camera.viewportWidth, camera.viewportHeight);
+		rayHandler.updateAndRender();
 	}
 	
 	public void renderOverlayed(SpriteBatch batch) {
@@ -736,7 +794,7 @@ public class LevelGenerate {
 		{
 			if(c.getFixture().equals(coin)){
 				int val = c.consume();
-				
+				//MyGame.sop("coin val"+val);
 				GameScreen.getInstance().increaseScore(val);
 				break;
 			}
@@ -966,7 +1024,7 @@ public class LevelGenerate {
 	public void enemyGotHit(Enemy e, int damage, boolean LEFT_DIR){
 		e.hitBullet(damage, LEFT_DIR);
 		
-		if(GameScreen.MULTIPLAYER)
+		if(GameScreen.MULTIPLAYER && GameScreen.getInstance().networkManager.NET_STATE == NetworkManager.NET_STATES.CONNECTED)
 			GameScreen.getInstance().networkManager.sendEnemyKillUpdate();
 	}
 	
@@ -1038,6 +1096,8 @@ public class LevelGenerate {
 		
 		gameScreen.showLevelClear();
 		
+		CURRENT_LEVEL_CLEARED = true;
+
 	}
 	
 	/** pass false to disable exit portal **/
@@ -1051,13 +1111,13 @@ public class LevelGenerate {
 	}
 	
 	/** When ghost tries to enable switch */
-	public void switchGhostCollide(Fixture switchFix){
+	public void switchGhostCollide(Fixture switchFix, boolean inRange){
 		//same as player
-		switchPlayerCollide(switchFix);
+		switchPlayerCollide(switchFix, inRange);
 	}
 	
 	/** level portal switch **/
-	public void switchPlayerCollide(Fixture lSwitch) {
+	public void switchPlayerCollide(Fixture lSwitch, boolean inRange) {
 //		if(levelSwitch!= null && lSwitch.equals(levelSwitch.getFixture())){
 //			levelSwitch.toggle();
 //			
@@ -1073,15 +1133,18 @@ public class LevelGenerate {
 //		}
 		
 		//switch states
-		boolean state = false;
+		boolean state = true;
 		
 		if(switchPool.size > 0){
 			for(Switch s:switchPool){
+				
+				//right now just set the state of switch to be ready for enabled on sword swing
 				if(lSwitch.equals(s.getFixture())){					
-					s.toggle();					
+					s.toggleReady(inRange);	
+					
 				}
 				
-				state = s.STATE_ENABLED;
+				state = state & s.STATE_ENABLED;
 				
 				for(Laser l: laserPool)
 				{//switch toggled for laser
@@ -1105,7 +1168,17 @@ public class LevelGenerate {
 
 	/** Player will swing sword to kill enemies */
 	public void swingSword() {		
-		Player.getInstance().swingWeapon();		
+		Player.getInstance().swingWeapon();	
+		GameScreen.getInstance().shakeThatAss(true);
+		checkSwitchToggle();
+	}
+	
+	/**If any switch is ready, toggle it*/
+	public void checkSwitchToggle(){
+		//check for switch toggling
+		for(Switch s:switchPool){
+			s.toggle();
+		}
 	}
 	
 	/** keep track of user inputs **/
@@ -1125,20 +1198,24 @@ public class LevelGenerate {
 
 	}
 	
-	public void dispose(){
-		
-		tmRenderer.dispose();
-		tileMap.dispose();			
+	public void dispose(boolean levelClear){
+		if(!levelClear){
+			//clear only when game ends
+			
+			tmRenderer.dispose();
+			tileMap.dispose();			
 
-		//levelSwitch = null;
-		
-		//clear bullets
-		for(Bullet b:bulletPool)
-			b.dispose();
-		bulletPool.clear();
-		for(Bullet b:activeBulletPool)
-			b.dispose();
-		activeBulletPool.clear();
+			//clear bullets
+			for(Bullet b:bulletPool)
+				b.dispose();
+			bulletPool.clear();
+			for(Bullet b:activeBulletPool)
+				b.dispose();
+			activeBulletPool.clear();
+			
+			if(gameMusic != null && GameScreen.BACKGROUND_MUSIC)
+				gameMusic.dispose();
+		}		
 		
 		for(Body b: platformPool){
 			world.destroyBody(b);
@@ -1178,6 +1255,7 @@ public class LevelGenerate {
 		laserPool.clear();
 		
 		bloodManager.dispose();
+		rayHandler.dispose();
 		
 		//clear image layers used in rendering
 		//tileImageLayers.clear();
@@ -1299,8 +1377,24 @@ public class LevelGenerate {
 		
 	}
 
-	public int getCoinCollected() {
+	/**number of coins collected**/
+	public int getCoinCollected(){
+		int t = 0;
+		for(Coin c:coinsPool){
+			if(c.consumed == true)
+				t++;
+		}
+		
+		return t;
+	}
+
+	public void playMenuMusic() {
 		// TODO Auto-generated method stub
-		return 0;
+		
+	}
+
+	public void playEpicLevelSound() {
+		// TODO Auto-generated method stub
+		
 	}
 }

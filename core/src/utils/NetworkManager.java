@@ -35,8 +35,8 @@ public class NetworkManager {
 	GameScreen game = GameScreen.getInstance();
 	public STATES STATE = STATES.NONE;
 	public NET_STATES NET_STATE = NET_STATES.DISCONNECTED;
-	public static final int TCP_PORT = 9211;
-	public static final int UDP_PORT = 9212;
+	public static final int TCP_PORT = 19211;
+	public static final int UDP_PORT = 19212;
 	public static final float PLAYER_SNAP_TIME = 0.1f;
 	public static final float ENEMY_SNAP_TIME = 5f;
 

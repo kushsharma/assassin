@@ -88,10 +88,10 @@ public class Coin {
 		//tex.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
 		
 		if(COIN_TYPE == NORMAL)
-			texRegion = GameScreen.getInstance().getAssetLord().manager.get(AssetLord.game_atlas, TextureAtlas.class).findRegion("milk-power");
+			texRegion = GameScreen.getInstance().getAssetLord().manager.get(AssetLord.game_atlas, TextureAtlas.class).findRegion("star");
 			//texRegion = atlas.findRegion("level1-power");
 		else if(COIN_TYPE == MEGA)
-			texRegion = GameScreen.getInstance().getAssetLord().manager.get(AssetLord.game_atlas, TextureAtlas.class).findRegion("milk-power");
+			texRegion = GameScreen.getInstance().getAssetLord().manager.get(AssetLord.game_atlas, TextureAtlas.class).findRegion("star");
 		
 		TextureRegion[] coinSheet = new TextureRegion[1];
 		coinSheet[0] = texRegion;

@@ -531,6 +531,9 @@ public class Ghost {
 	public void swingWeapon(){
 		if(!CAN_FIRE) return;
 
+		//check if any switch is in range and toggle it
+		LevelGenerate.getInstance().checkSwitchToggle();
+		
 		SWINGING = true;
 		swing_time = 0;
 		SWING_STORED = true;

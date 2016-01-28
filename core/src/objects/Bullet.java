@@ -27,7 +27,7 @@ import com.softnuke.epic.MyGame;
 public class Bullet {
 
 	private static Bullet _bullet = null;
-	public static float Speed = 1f;
+	public static float Speed = 15f;
 	public static int DAMAGE = Player.WEAPON_DAMAGE/2;
 	public static boolean BULLET_POWER = false; //makes bullet Awesome
 
@@ -120,7 +120,7 @@ public class Bullet {
 		
 		fixtureDef = new FixtureDef();
 		fixtureDef.shape = shape;
-		fixtureDef.density =  0.4f;
+		fixtureDef.density =  0.2f;
 		fixtureDef.friction = 0;
 		fixtureDef.restitution = 0.4f;		
 		fixtureDef.isSensor = false;
@@ -186,12 +186,12 @@ public class Bullet {
 		if(visible)//only move if visible
 		if(LEFT_DIRECTION){
 			if(body.getLinearVelocity().x > -Speed)
-				body.applyLinearImpulse(-0.2f, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
+				body.applyLinearImpulse(-0.05f, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
 		}
 		else
 		{
 			if(body.getLinearVelocity().x < Speed)
-				body.applyLinearImpulse(0.2f, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
+				body.applyLinearImpulse(0.05f, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
 		}
 		
 		//decrease bullet size

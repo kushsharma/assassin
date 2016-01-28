@@ -46,6 +46,7 @@ public class Switch {
 	
 	//current type
 	public boolean STATE_ENABLED = false;
+	public boolean READY = false;
 	
 	//used to unlock lasers
 	public int auth_id = 0;
@@ -89,9 +90,11 @@ public class Switch {
 		
 		if(GameScreen.PLAYER_PARTICLES){
 			//TODO:change this later
-			effect = new ParticleEffect(GameScreen.getInstance().getAssetLord().manager.get(AssetLord.portal_particle, ParticleEffect.class));
-			effect.scaleEffect(0.5f);
-			effect.setPosition(position.x - width/6, position.y + height/2);
+			//effect = new ParticleEffect(GameScreen.getInstance().getAssetLord().manager.get(AssetLord.portal_particle, ParticleEffect.class));
+			//effect.scaleEffect(0.5f);
+			//effect.setPosition(position.x - width/6, position.y + height/2);
+			
+			
 			//effect.start();
 			//effect.setEmittersCleanUpBlendFunction(false);
 
@@ -176,10 +179,7 @@ public class Switch {
 		lightE.disable();
 		lightD.enable();
 		
-		if(true)
-		return;
-		
-		
+		READY = false;
 	}
 	
 	public Fixture getFixture(){
@@ -192,14 +192,21 @@ public class Switch {
 		visible = false;
 		
 				
-		if(GameScreen.PLAYER_PARTICLES){
-			effect.allowCompletion();
-		}
+//		if(GameScreen.PLAYER_PARTICLES){
+//			effect.allowCompletion();
+//		}
 		
 
 	}
 	
+	public void toggleReady(boolean inRange){
+		//if player is swinging weapon only then toggle switch
+		READY = inRange;		
+	}
+	
 	public void toggle(){
+		if(!READY) return;
+		
 		STATE_ENABLED = !STATE_ENABLED;
 		
 		if(STATE_ENABLED){
@@ -241,10 +248,10 @@ public class Switch {
 	}
 	
 	public void dispose(){
-		world.destroyBody(body);
+		//world.destroyBody(body);
 		
 		if(GameScreen.PLAYER_PARTICLES){
-			effect.dispose();
+			//effect.dispose();
 		}
 	}
 }

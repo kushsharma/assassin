@@ -177,10 +177,10 @@ public class MyContactListener implements ContactListener{
 			pl.CAN_JUMP = true;
 
 			if(A.getUserData().equals("player") == true)
-				LevelGenerate.getInstance().levelClearPortal(contact.getFixtureB());
+					LevelGenerate.getInstance().levelClearPortal(contact.getFixtureB());
 			else
-				LevelGenerate.getInstance().levelClearPortal(contact.getFixtureA());
-			
+				LevelGenerate.getInstance().levelClearPortal(contact.getFixtureA());				
+						
 		}
 		
 		//handle moving platforms, a.k.a. movers
@@ -205,9 +205,9 @@ public class MyContactListener implements ContactListener{
 		if((contact.getFixtureA().equals(pl.getBodyFixture()) == true && B.getUserData().equals("switch") == true) || (A.getUserData().equals("switch") == true && contact.getFixtureB().equals(pl.getBodyFixture()) == true ))
 		{
 			if(contact.getFixtureA().equals(pl.getBodyFixture()) == true)
-				LevelGenerate.getInstance().switchPlayerCollide(contact.getFixtureB());
+				LevelGenerate.getInstance().switchPlayerCollide(contact.getFixtureB(), true);
 			else
-				LevelGenerate.getInstance().switchPlayerCollide(contact.getFixtureA());
+				LevelGenerate.getInstance().switchPlayerCollide(contact.getFixtureA(), true);			
 			
 		}
 		
@@ -216,9 +216,9 @@ public class MyContactListener implements ContactListener{
 		if((contact.getFixtureA().equals(Ghost.getInstance().getBodyFixture()) == true && B.getUserData().equals("switch") == true) || (A.getUserData().equals("switch") == true && contact.getFixtureB().equals(Ghost.getInstance().getBodyFixture()) == true ))
 		{
 			if(contact.getFixtureA().equals(pl.getBodyFixture()) == true)
-				LevelGenerate.getInstance().switchGhostCollide(contact.getFixtureB());
+				LevelGenerate.getInstance().switchGhostCollide(contact.getFixtureB(), true);
 			else
-				LevelGenerate.getInstance().switchGhostCollide(contact.getFixtureA());
+				LevelGenerate.getInstance().switchGhostCollide(contact.getFixtureA(), true);
 			
 		}
 		
@@ -252,6 +252,27 @@ public class MyContactListener implements ContactListener{
 				LevelGenerate.getInstance().enemyWeaponCollide(contact.getFixtureB(), contact.getFixtureA(), false);
 			
 			return;
+		}
+		
+		//handle switch for enabling level exit portal
+		if((contact.getFixtureA().equals(pl.getBodyFixture()) == true && B.getUserData().equals("switch") == true) || (A.getUserData().equals("switch") == true && contact.getFixtureB().equals(pl.getBodyFixture()) == true ))
+		{
+			if(contact.getFixtureA().equals(pl.getBodyFixture()) == true)
+				LevelGenerate.getInstance().switchPlayerCollide(contact.getFixtureB(), false);
+			else
+				LevelGenerate.getInstance().switchPlayerCollide(contact.getFixtureA(), false);			
+			
+		}
+		
+		//handle switch for enabling level exit portal with ghost!!
+		if(!GameScreen.MULTIPLAYER)
+		if((contact.getFixtureA().equals(Ghost.getInstance().getBodyFixture()) == true && B.getUserData().equals("switch") == true) || (A.getUserData().equals("switch") == true && contact.getFixtureB().equals(Ghost.getInstance().getBodyFixture()) == true ))
+		{
+			if(contact.getFixtureA().equals(pl.getBodyFixture()) == true)
+				LevelGenerate.getInstance().switchGhostCollide(contact.getFixtureB(), false);
+			else
+				LevelGenerate.getInstance().switchGhostCollide(contact.getFixtureA(), false);
+			
 		}
 		
 		//enemy escapes from weapon range of ghost

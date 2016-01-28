@@ -170,7 +170,8 @@ public class AssetLord {
 		ParticleEffectParameter pep = new ParticleEffectParameter();
 		//pep.imagesDir = Gdx.files.internal("particles/");
 		pep.atlasFile = game_atlas;
-//		manager.load(player_jump_particle, ParticleEffect.class, pep);
+		manager.load(player_jump_particle, ParticleEffect.class, pep);
+		manager.load(enemy_kill_particle, ParticleEffect.class, pep);
 
 		
 		//TODO:make them fetch from different atlas
@@ -206,7 +207,8 @@ public class AssetLord {
 
 		
 		if(resized) return;
-		
+		manager.get(player_jump_particle, ParticleEffect.class).scaleEffect(MyGame.PTP/2f);
+		manager.get(enemy_kill_particle, ParticleEffect.class).scaleEffect(MyGame.PTP);
 		//manager.get(gravity_rev_particle, ParticleEffect.class).scaleEffect(MyGame.PTP * 0.75f);
 		//manager.get(beamspot_particle, ParticleEffect.class).scaleEffect(MyGame.PTP);
 
