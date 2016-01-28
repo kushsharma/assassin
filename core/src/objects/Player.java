@@ -37,7 +37,7 @@ import utils.MyInputProcessor.CONTROL;
 public class Player {
 
 	public static Player _player = null;
-	private boolean IMMORTAL = true;
+	private boolean IMMORTAL = false;
 	private boolean PLAYER_DRAW = true;
 	
 	private float height = 1.0f * 0.9f, width = 0.5f * 0.9f;
