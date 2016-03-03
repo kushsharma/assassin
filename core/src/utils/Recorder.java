@@ -186,7 +186,7 @@ public class Recorder {
 		if(recordTape.size == 0 || recordTape.get(0).frame_number == -1)
 		{
 			//no recording to play
-			MyGame.sop("No recording to play "+recordTape.get(0).frame_number);
+			MyGame.sop("No recording to play");
 			record();
 			return;
 			
@@ -259,6 +259,18 @@ public class Recorder {
 		}
 		RECORDING = false;
 		PLAYING = false;
+	}
+	
+	public void resetTape(){
+		reset();
+		
+		for(RecordFrame rf:recordTape){
+			rf.reset();
+		}
+		for(RecordFrame rf:last_recordTape){
+			rf.reset();
+		}
+		frame_index = 0;
 	}
 	
 	public class RecordFrame{

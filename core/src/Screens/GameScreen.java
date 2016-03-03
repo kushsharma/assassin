@@ -78,7 +78,7 @@ import utils.ScoreManager;
  * draw sword swing animation one more and play it if sword is already in motion _ done
  * bug: portal active even if first switch is active _ fixed
  * bug: recorder doesn't work, when last_rec == rec in count _ fixed
- * 
+ * bug: clear last_recordTape when level is changed _ fixed
  */
 public class GameScreen implements Screen {
 
@@ -604,6 +604,9 @@ public class GameScreen implements Screen {
 
 		levelClearScreen.setVisible(false);
 		pauseBack.setVisible(false);
+		
+		//delete old recording
+		recorder.resetTape();
 		
 		//change game state
 		CURRENT_STATE = GameState.EVOLVING;
