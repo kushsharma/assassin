@@ -93,7 +93,7 @@ public class Bullet {
 //		}
 
 		bulletSprite = new Sprite(GameScreen.getInstance().getAssetLord().manager.get(AssetLord.game_atlas, TextureAtlas.class).findRegion("bullet"));
-		bulletSprite.setSize(width, height);
+		bulletSprite.setSize(width*2, height*2);
 		bulletSprite.setOrigin(bulletSprite.getWidth()/2, bulletSprite.getHeight()/2);
 
 		//mega power

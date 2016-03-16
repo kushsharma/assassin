@@ -1155,20 +1155,20 @@ public class MainMenuScreen implements Screen, ActionListener{
 		});	
 		//creditGroup.addActor(twitterImage);
 		
-		credits.add(new Label("Developer", labelStyle)).colspan(3);
+		credits.add(new Label("Developers", labelStyle)).colspan(3);
 		//credits.add(twitterImage).size(WIDTH/22, WIDTH/22).align(Align.left);
+		credits.row();
+		credits.add(twitterImage).colspan(3).size(WIDTH/25, WIDTH/25);
 		credits.row();
 		credits.add(new Label("Kush Sharma", labelStyleSmall)).colspan(3);
 		credits.row();		
-		credits.add(twitterImage).colspan(3).size(WIDTH/25, WIDTH/25);
+		credits.add(new Label("Yogendra Singh", labelStyleSmall));
 		credits.row();
 		
+		
+		//credits.add(new Label("Testers", labelStyle)).colspan(3);
 		/*
-		credits.add(new Label("Testers", labelStyle)).colspan(3);
-		credits.row();
 		credits.add(new Label("R", labelStyleSmall));
-
-		credits.add(new Label("Y", labelStyleSmall));
 		
 		credits.add(new Label("V", labelStyleSmall));
 		credits.row();
@@ -1354,15 +1354,20 @@ public class MainMenuScreen implements Screen, ActionListener{
 	public void setHome(){
 		//reset view to main menu
 		
-		menu.addAction(Actions.moveTo(WIDTH/2 - menu.getWidth()/2, HEIGHT/2 - menu.getHeight()/2, 0.5f, Interpolation.swingOut));					
+		menu.addAction(Actions.moveTo(WIDTH/2 - menu.getWidth()/2, HEIGHT/2 - menu.getHeight()/2,
+				0.5f, Interpolation.fade));
+		menu.addAction(Actions.fadeIn(0.5f));
 		
-		optionsTable.addAction(Actions.moveTo(WIDTH, 0, 0.5f, Interpolation.swingOut));
+		optionsTable.addAction(Actions.moveTo(-WIDTH , 0,
+				0.5f, Interpolation.fade));
+		optionsTable.addAction(Actions.fadeOut(0.5f));
+		//store.addAction(Actions.moveTo(0 - WIDTH/2 - store.getWidth()/2, 0, 0.5f, Interpolation.swingOut));
+		
+		credits.addAction(Actions.moveTo(-WIDTH/2 - credits.getWidth()/2, 0, 0.5f, Interpolation.fade));
+		credits.addAction(Actions.fadeOut(0.5f));
 
-		store.addAction(Actions.moveTo(0 - WIDTH/2 - store.getWidth()/2, 0, 0.5f, Interpolation.swingOut));
-		
-		credits.addAction(Actions.moveTo(WIDTH*2 - WIDTH/2 - credits.getWidth()/2, 0, 0.5f, Interpolation.swingOut));
-		
-		levelTable.addAction(Actions.moveTo(0, HEIGHT, 0.5f, Interpolation.swingOut));
+		levelTable.addAction(Actions.moveTo(0, HEIGHT, 0.5f, Interpolation.fade));
+		levelTable.addAction(Actions.fadeOut(0.5f));
 
 		CURRENT_VIEW = 0;
 		

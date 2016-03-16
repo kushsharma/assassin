@@ -32,6 +32,7 @@ public class MyContactListener implements ContactListener{
 		{//handle player and platform collision
 			pl.CAN_JUMP = true;
 			pl.startJumpEffect();
+			
 			return;
 		}
 		

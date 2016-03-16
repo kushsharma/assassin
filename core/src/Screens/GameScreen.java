@@ -79,6 +79,9 @@ import utils.ScoreManager;
  * bug: portal active even if first switch is active _ fixed
  * bug: recorder doesn't work, when last_rec == rec in count _ fixed
  * bug: clear last_recordTape when level is changed _ fixed
+ * add player bullet power charge particles
+ * fix pause screen
+ * 
  */
 public class GameScreen implements Screen {
 

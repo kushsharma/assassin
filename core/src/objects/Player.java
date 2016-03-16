@@ -583,7 +583,10 @@ public class Player {
 		if(!CAN_FIRE) return;
 		
 		if(SWINGING){
-			SWING_COMBO = true;
+			SWING_COMBO = !SWING_COMBO;
+			
+			if(SWING_COMBO)
+				body.applyLinearImpulse(((LEFT_DIRECTION) ? -1: 1) * 0.4f, 0, 0, 0, true);
 		}
 		
 		SWINGING = true;
@@ -781,7 +784,8 @@ public class Player {
 			}
 		}
 		
-		if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == true){
+		if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == true && fire_hold == 0){
+			
 			moveLeft();
 			if(LEFT_DIRECTION != true){
 				LEFT_DIRECTION = true;
@@ -811,7 +815,7 @@ public class Player {
 				*/
 			}
 		}
-		else if(pKeys.get(MyInputProcessor.CONTROL.RIGHT) == true){
+		else if(pKeys.get(MyInputProcessor.CONTROL.RIGHT) == true && fire_hold == 0){
 			moveRight();
 			if(LEFT_DIRECTION != false){
 				LEFT_DIRECTION = false;
