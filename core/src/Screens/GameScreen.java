@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -84,14 +85,17 @@ import utils.ScoreManager;
  * make better lasers
  * fix player ghost switch toggles
  * add player dash
- * 
+ * fix camera shake while panning [player dies]
+ * fix sound
+ * make game size bigger PTP
  */
 public class GameScreen implements Screen {
 
-    public static boolean DEBUG = true;
-    public static boolean SOFT_DEBUG = true;
+    public static boolean DEBUG = false;
+    public static boolean SOFT_DEBUG = false;
     public static boolean DISABLE_ADS = true;
 
+    public static boolean SCAN_LINES_ON = true;
     public static boolean RENDER_LIGHTS = true;
     public static boolean BACKGROUND_SHADER = false; //no use right now
     public static boolean BACKGROUND_PARALLAX = false;
@@ -153,7 +157,8 @@ public class GameScreen implements Screen {
 	public Cinema cinema;
 
 	private TextureAtlas gameAtlas;
-	
+	Texture scanTex;
+
 	public GameScreen(MyGame g, AssetLord ass, int lno){
 		
 		MyGame.sop("level loading:"+lno);
@@ -174,7 +179,8 @@ public class GameScreen implements Screen {
         
 		prefs = Gdx.app.getPreferences(MainMenuScreen.PreferenceName);
 		GameScreen.BACKGROUND_MUSIC = prefs.getBoolean("music", true);
-		
+		GameScreen.SCAN_LINES_ON = (prefs.getInteger("visuals", 1) > 0) ? true : false;
+
 		/////////
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, bWIDTH, bHEIGHT);
@@ -234,7 +240,9 @@ public class GameScreen implements Screen {
 		Gdx.gl.glDisable(GL20.GL_CULL_FACE);
 		Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
     }
-    
+	
+	//Sprite scanSprite;
+	
     public void createObjects(){
     	//create scoremanager before cinema
 		scoreManager = new ScoreManager();
@@ -262,11 +270,19 @@ public class GameScreen implements Screen {
 		
 		background = new Background(camera);
 
+		scanTex = Assets.manager.get(AssetLord.scan_line_tex, Texture.class);
+    	scanTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+    	scanTex.setWrap(TextureWrap.ClampToEdge, TextureWrap.Repeat);
+    	
+//    	scanSprite = new Sprite(scanTex);
+//    	scanSprite.setSize(WIDTH, HEIGHT);
+//    	scanSprite.setPosition(0, 0);
+//    	scanSprite.setColor(1f,1f,1f,0.2f);
     }
     
     public void createUI(){
-    	controls = new Group();
-		
+    	controls = new Group();		
+    	
 		final Image moveLeftImage = new Image(gameAtlas.findRegion("button-left"));
 		moveLeftImage.setSize(HEIGHT*0.25f, HEIGHT*0.25f * moveLeftImage.getHeight()/moveLeftImage.getWidth());
 		moveLeftImage.setPosition(WIDTH/35 , 0);
@@ -364,6 +380,7 @@ public class GameScreen implements Screen {
 		
 		//added score label before cinema
 		stage.addActor(scoreLabel);
+				
 		
 		//used to prioritize its view over score
 		cinema.addDialogue();
@@ -785,6 +802,9 @@ public class GameScreen implements Screen {
 			//things that needs to be rendered over player
 			level.renderOverlayed(batch);
 
+//			batch.setColor(1f,1f,1f,0.2f);
+//			batch.setColor(1f,1f,1f,1f);
+			
 			batch.end();
 			
 			if(MULTIPLAYER){
@@ -806,7 +826,14 @@ public class GameScreen implements Screen {
 		
 		batch.setProjectionMatrix(cameraui.combined);
 		batch.begin();
-		cinema.renderUI(batch);
+		
+		if(SCAN_LINES_ON){
+			batch.setColor(1f, 1f, 1f, 0.2f);
+			batch.draw(scanTex, 0, 0, WIDTH, HEIGHT, 0, 0, 0.2f, 0.2f );
+			batch.setColor(1f, 1f, 1f, 1f);		
+		}
+		
+		cinema.renderUI(batch);		
 		batch.end();
     }
     
@@ -967,14 +994,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
-    	pauseGame();
     }
 
     @Override
 	public void resume() {
 		
     	//don't resume automatically
-    	//resumeGame();
+    	pauseGame();
 	}
 
 	@Override

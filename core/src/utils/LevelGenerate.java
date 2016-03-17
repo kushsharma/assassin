@@ -18,6 +18,7 @@ import box2dLight.RayHandler;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -115,6 +116,7 @@ public class LevelGenerate {
 	public RayHandler rayHandler;
 	
 	Music gameMusic = null;
+	Sound coinSound, fireSound, playerHurtSound, enemyHurtSound, levelUpSound, portalSound, epicLevelSound, finishSound;
 	
 	public LevelGenerate(OrthographicCamera cam, World w, SpriteBatch b){
 		_level = this;
@@ -130,13 +132,15 @@ public class LevelGenerate {
 		//prepare blood
 		bloodManager = new BloodManager(world);
 		
-		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("rinse.mp3"));
-		gameMusic.setLooping(true);
-		gameMusic.setVolume(0.5f);
+		//gameMusic = Gdx.audio.newMusic(Gdx.files.internal("rinse.mp3"));
+		
 		
 		prepareBullets();
 		
 		levelTiled();
+
+		coinSound = fireSound = playerHurtSound = enemyHurtSound = levelUpSound = portalSound = null;
+
 	}
 	
 	public void levelTiled(){
@@ -145,7 +149,7 @@ public class LevelGenerate {
 		try {
 			switch(CURRENT_LEVEL){			
 			case 1:
-				tileMap = tileLoader.load("levels/level-zero.tmx");
+				tileMap = tileLoader.load("levels/level-1.tmx");
 				break;
 			case 2:
 				tileMap = tileLoader.load("levels/level-2.tmx");
@@ -189,8 +193,33 @@ public class LevelGenerate {
 		LEVEL_LOADED = true;		
 		GameScreen.CURRENT_STATE = GameState.RUNNING;
 		
-		if(gameMusic != null && GameScreen.BACKGROUND_MUSIC)
-			gameMusic.play();
+		//create Sounds
+		loadSounds();
+	}
+			
+	private void loadSounds() {
+			
+		coinSound = Assets.manager.get(AssetLord.coin_sound, Sound.class);
+		fireSound = Assets.manager.get(AssetLord.fire_sound, Sound.class);
+		finishSound = Assets.manager.get(AssetLord.finish_sound, Sound.class);
+		epicLevelSound = Assets.manager.get(AssetLord.epicLevelup_sound, Sound.class);
+		
+		playerHurtSound = Assets.manager.get(AssetLord.player_hurt_sound, Sound.class);
+		enemyHurtSound = Assets.manager.get(AssetLord.enemy_hurt_sound, Sound.class);
+		levelUpSound = Assets.manager.get(AssetLord.levelup_sound, Sound.class);
+		//portalSound = Assets.manager.get(AssetLord.portal_sound, Sound.class);
+		
+		
+		gameMusic = Assets.manager.get(AssetLord.game_music, Music.class);
+		gameMusic.setLooping(true);
+		gameMusic.setVolume(0.5f);
+		
+		if(GameScreen.BACKGROUND_MUSIC){			
+				gameMusic.stop();
+				gameMusic.play();
+		
+		}
+		
 	}
 	
 	private void prepareBullets(){
@@ -848,7 +877,7 @@ public class LevelGenerate {
 		}
 		
 		
-		//playFireSound();
+		playFireSound();
 	}
 	
 	/**number of enemies killed**/
@@ -870,7 +899,6 @@ public class LevelGenerate {
 				//enemy died
 				e.setDeath();
 				
-				LevelGenerate.getInstance().playEnemyHitSound();
 				
 				//e.hitBullet(Player.getInstance().JUMP_DAMAGE);
 				Player.getInstance().makeMiniJump();
@@ -880,11 +908,13 @@ public class LevelGenerate {
 			} else */
 				if(e.getSensorFixture().equals(fixtureE) && Player.getInstance().getSensorFixture().equals(fixtureP)){
 				
+				LevelGenerate.getInstance().playEnemyHitSound();
+
 				//player died
 				Player.getInstance().setDeath(Player.DEATH_BY.ENEMY);
 				
-				//if(GameScreen.BACKGROUND_MUSIC)
-				//	Gdx.input.vibrate(50);
+				if(GameScreen.BACKGROUND_MUSIC)
+					Gdx.input.vibrate(50);
 				
 				break;
 			}
@@ -1011,11 +1041,15 @@ public class LevelGenerate {
 				break;
 			}
 		}
+		
+		playEnemyHitSound();
 	}
 	
 	/** kill enemy with weapon **/
 	public void enemyWeaponCollide(Fixture enemy, Fixture weapon, boolean IN_RANGE) {
-				
+		
+		playEnemyHitSound();
+		
 		for(Enemy e: enemyPool){
 			if(e.DEAD == false && e.getBodyFixture().equals(enemy) == true)
 			{//enemy got hit by bullet
@@ -1171,7 +1205,7 @@ public class LevelGenerate {
 	public void swingSword(boolean byPlayer) {		
 		Player.getInstance().swingWeapon();	
 		
-		if(!Player.getInstance().DASHING)
+		if(!Player.getInstance().DASHING && !Player.getInstance().isDead())
 			GameScreen.getInstance().shakeThatAss(true);
 		
 		checkSwitchToggle(byPlayer);
@@ -1363,26 +1397,6 @@ public class LevelGenerate {
 		return switchPool.size;
 	}
 
-	public void playEnemyHitSound() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void playFireSound() {
-		// TODO Auto-generated method stub
-		
-	}
-
-		public void playCoinSound() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void playFinishSound() {
-		// TODO Auto-generated method stub
-		
-	}
-
 	/**number of coins collected**/
 	public int getCoinCollected(){
 		int t = 0;
@@ -1399,8 +1413,61 @@ public class LevelGenerate {
 		
 	}
 
-	public void playEpicLevelSound() {
-		// TODO Auto-generated method stub
+	public void playCoinSound(){
+		MyGame.sop("COIN SOUND");
+
+		if(!GameScreen.BACKGROUND_MUSIC) return;
 		
+		if(coinSound != null)
+			coinSound.play();
+		
+	}
+	
+	public void playFinishSound(){
+		if(!GameScreen.BACKGROUND_MUSIC) return;
+
+		if(finishSound != null)
+			finishSound.play();
+	}
+	
+	public void playEpicLevelSound(){
+		if(!GameScreen.BACKGROUND_MUSIC) return;
+
+		if(epicLevelSound != null)
+			epicLevelSound.play();
+	}
+	
+	public void playFireSound(){
+		MyGame.sop("Bullet SOUND");
+
+		if(!GameScreen.BACKGROUND_MUSIC) return;
+
+		MyGame.sop("Bullet SOUND can");
+
+		if(fireSound != null)
+			fireSound.play();
+	}
+	
+	public void playPlayerHitSound(){
+		if(!GameScreen.BACKGROUND_MUSIC) return;
+
+		if(playerHurtSound != null)
+			playerHurtSound.play();
+		
+	}
+	
+	public void playEnemyHitSound(){
+		if(!GameScreen.BACKGROUND_MUSIC) return;
+
+		if(enemyHurtSound != null)
+			enemyHurtSound.play();
+		
+	}
+	
+	public void playLevelUpSound(){
+		if(!GameScreen.BACKGROUND_MUSIC) return;
+
+		if(levelUpSound != null)
+			levelUpSound.play();
 	}
 }

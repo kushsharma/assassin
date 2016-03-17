@@ -117,7 +117,7 @@ public class Player {
 	Texture playerTex;
 	Sprite playerSprite, hitSprite;
 	Sprite glow;
-	ParticleEffect jumpParticle;
+	ParticleEffect jumpParticle, chargeParticle, dashParticle, dashLeftParticle;
 	
 	private Vector2 WorldGravityNegative = new Vector2(GameScreen.WorldGravity.x *-1, 0);
 	
@@ -284,6 +284,7 @@ public class Player {
 		playerSprite.setSize(width*3f, width * 3f * playerSprite.getHeight()/playerSprite.getWidth());
 		playerSprite.setOrigin(playerSprite.getWidth()/2, playerSprite.getHeight()/2);
 		
+		
 		TextureRegion idleSheet[] = new TextureRegion[2];
 		
 		idleSheet[0] = gameAtlas.findRegion("player-idle-1");
@@ -353,6 +354,19 @@ public class Player {
 		//particle
 		jumpParticle = gameScreen.getAssetLord().manager.get(AssetLord.player_jump_particle,ParticleEffect.class);
 		jumpParticle.setEmittersCleanUpBlendFunction(false);
+		jumpParticle.setPosition(-bWIDTH/2, -bHEIGHT/2);
+		
+		chargeParticle = gameScreen.getAssetLord().manager.get(AssetLord.power_charge_particle,ParticleEffect.class);
+		chargeParticle.setEmittersCleanUpBlendFunction(false);
+		chargeParticle.setPosition(-bWIDTH/2, -bHEIGHT/2);
+
+		dashParticle = gameScreen.getAssetLord().manager.get(AssetLord.dashed_particle,ParticleEffect.class);
+		dashParticle.setEmittersCleanUpBlendFunction(false);
+		dashParticle.setPosition(-bWIDTH/2, -bHEIGHT/2);
+		
+		dashLeftParticle = gameScreen.getAssetLord().manager.get(AssetLord.dashed_left_particle,ParticleEffect.class);
+		dashLeftParticle.setEmittersCleanUpBlendFunction(false);
+		dashLeftParticle.setPosition(-bWIDTH/2, -bHEIGHT/2);
 	}
 	
 	public void render(ShapeRenderer canvas){
@@ -445,6 +459,11 @@ public class Player {
 				hitSprite.draw(batch);
 		}
 		
+		if(DASHING)
+		{
+			playerSprite.setRegion(gameAtlas.findRegion("player-dash-1"));
+		}
+		
 		if(LEFT_DIRECTION)	
 			playerSprite.setFlip(true, false);
 		
@@ -459,7 +478,13 @@ public class Player {
 	public void renderParticles(SpriteBatch batch){
 
 		if(GameScreen.PLAYER_PARTICLES)
+		{
 			jumpParticle.draw(batch);
+			chargeParticle.draw(batch);
+			
+			dashLeftParticle.draw(batch);
+			dashParticle.draw(batch);
+		}
 		
 	}
 	
@@ -514,6 +539,8 @@ public class Player {
 			{
 				FIRING = false;
 				bullets_fired = 0;
+				
+				chargeParticle.allowCompletion();
 			}
 		}
 		
@@ -559,7 +586,12 @@ public class Player {
 		}
 		
 		if(GameScreen.PLAYER_PARTICLES)
+		{
 			jumpParticle.update(delta);
+			chargeParticle.update(delta/2f);
+			dashParticle.update(delta*4f);
+			dashLeftParticle.update(delta*4f);
+		}
 				
 		if(FLYING)
 		{
@@ -605,6 +637,10 @@ public class Player {
 		
 		fixBodyAngle();
 		enemyNearPool.clear();
+		
+		chargeParticle.allowCompletion();
+		dashParticle.allowCompletion();
+		dashLeftParticle.allowCompletion();
 
 	}
 	
@@ -613,7 +649,7 @@ public class Player {
 		
 		FIRING = true;
 		bullets_fired = 0;
-		last_bullet_time = 0;
+		last_bullet_time = 0;		
 	}
 	
 	public void swingWeapon(){
@@ -755,7 +791,28 @@ public class Player {
 	public void startJumpEffect(){
 		jumpParticle.setPosition(position.x, position.y - height/2);
 		jumpParticle.start();
-	}	
+	}
+	
+	public void startChargeEffect(){
+		if(LEFT_DIRECTION)
+			chargeParticle.setPosition(position.x - width*1.1f, position.y + height/6);
+		else
+			chargeParticle.setPosition(position.x + width*0.75f, position.y + height/6);
+		
+		//if(!chargeParticle.isComplete())
+			chargeParticle.start();
+		
+	}
+	
+	public void startDashEffect(){
+		dashParticle.setPosition(position.x, position.y + height/4);
+		dashLeftParticle.setPosition(position.x, position.y + height/4);
+
+		if(LEFT_DIRECTION)
+			dashLeftParticle.start();
+		else
+			dashParticle.start();
+	}
 	
 	public void makeJump() {
 		//maybe add a variable jump, like longer you hold, more it will jump
@@ -814,6 +871,8 @@ public class Player {
 			if(!DEAD && DASH_BUTTON_COUNT == 1 && dashButtonCooler > 0 && !DASHING && lastDashDirectionLeft == LEFT_DIRECTION){
 		
 			DASHING = true;
+			startDashEffect();
+			
 			MyGame.sop("DASHED...->>>");
 					
 			body.applyLinearImpulse(((LEFT_DIRECTION)?-1 : 1) * DASH_FORCE, 0, 0, 0, true);
@@ -841,6 +900,9 @@ public class Player {
 			//if fire key hold, shoot bullets
 			if(pKeys.get(MyInputProcessor.CONTROL.FIRE) == true && !DASHING){ //error here
 				fire_hold += delta;
+				
+				if(fire_hold > BULLET_HOLD_TIME/6f)
+					startChargeEffect();
 				//MyGame.sop(fire_hold);
 			}
 			else
@@ -852,6 +914,9 @@ public class Player {
 				
 				//MyGame.sop("Bullet fired");
 			}
+			
+			if(!chargeParticle.isComplete())
+				chargeParticle.allowCompletion();
 		}
 		
 		if(dashButtonCooler > 0){

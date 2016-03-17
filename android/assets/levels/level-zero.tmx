@@ -5,7 +5,7 @@
  </tileset>
  <layer name="Platform" width="80" height="40">
   <data encoding="base64" compression="zlib">
-   eJztloEJgzAQRcV2AVsHSAsdoSN0/5WqoGBC1Fx+Uw28B4dR4+V4xhjXQMhzihRcwTpqBX8a+NPAnwb+NPCngT8N/GngTwN/GvjTwJ8G/jTwp4E/Dfxp4E8Dfxr482mHuESO18VxCf58LD6s/Z25muNpg5jnUHg+gz+NM/sL33/Jdi5n9lcDoY/Y+1lew5/PP+ff1nc0nx9NbM5s7Ulq+H67H+UpkTfXX5cw/iu3qIka/h/vKVKxOLHkrRWrv1J9a6Wkv4+xlpGUdaEUOWNb/VmcuCZ9HdrbN63dt+T/5bqZW6/l/zH6uw1xH6Lfacfu7T279txa/tS+pertG/v+5UF4gT/84a/ewB/+avH3BRo4T60=
+   eJztl3FqwyAchR9tt79LtwO8DXaEHWH3v9IMNMNI0vjLiyWO98EjlqiRT6MpYUqY8hmoa6YQ9qdA2J8CYX8KhP0pEPanQNifAmF/CoT9KRD2p0DYnwJhfwqE/SkQ9qdA2J8CYX8KhP0pEPanQNhfzkvKOeVUXC/ZNYewvxyi3ke0PoNjOQLDejplGddQ/vs1q0/YnwJxXH/j3jLOf6tyvp6iEMf11wPE1MfcnOdzVtZf6/u/Qzxv/T16H4co79FelN8j5Vh7PD+uO/XTol9im79rxfO/tg3pjx7Oj+97aok4ifTbK1F/rer2Skt/P8GxDNTsC63Y8uyov4iT8b9QzT40d2+t7VK7pf733De3jvdc5BFMuaW8pbyvlOfurbVdarfUf23dVuMdytGz+sOZxP7sz/76jf3ZXy/+fgEGJk4a
   </data>
  </layer>
  <objectgroup name="PlatformOb">

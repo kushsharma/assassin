@@ -61,7 +61,19 @@ public class Ghost {
 	private int bullets_fired = 0;
 	private float last_bullet_time = 0;	
 	
+	//player dash
+	public static final float DASH_FORCE = Player.Speed; //dash force
+	public static final float DASH_DURATION = Player.DASH_DURATION; //time it takes for dash
+	public static final float DASH_BUTTON_SPEED = Player.DASH_BUTTON_SPEED; // time it needs by player to make dash
+	public boolean DASHING = false; //if its dashing right now
+	public int DASH_BUTTON_COUNT = 0;
+	public float dashing_time = 0; //for how long we are dashing
+	private float dashButtonCooler = DASH_BUTTON_SPEED; // time last time dash button is pressed [left/right button]
+	private boolean lastDashDirectionLeft = false; //direction of last dash
+	
+	//player swing combos
 	public boolean SWINGING = false; //if player is swinging right now
+	public boolean SWING_COMBO = false; //if player swinged twice
 	public boolean SWING_STORED = false; //player is swinging and haven't hurt anyone till now
 	private float swing_time = 0;
 	public static final float TOTAL_SWING_TIME = Player.TOTAL_SWING_TIME;	//time in swing motion
@@ -71,7 +83,8 @@ public class Ghost {
 	public boolean Revived = false;
 	public int JUMP_DAMAGE = 2;
 	public static int WEAPON_DAMAGE = Player.WEAPON_DAMAGE;
-	
+	public static int DASH_DAMAGE = Player.DASH_DAMAGE;
+
 	private boolean DEAD = false; //reset game
 	public boolean CONTROLS = true; //player can/can't be controlled
 	public boolean GOT_HIT = false;
@@ -364,11 +377,18 @@ public class Ghost {
 			playerSprite.setRegion(gameAtlas.findRegion("player-hand-1"));
 		}
 		
+		if(DASHING)
+		{
+			playerSprite.setRegion(gameAtlas.findRegion("player-dash-1"));
+		}
+		
 		if(LEFT_DIRECTION)	
 			playerSprite.setFlip(true, false);
 		
 		if(PLAYER_DRAW && !GOT_HIT && !DEAD)
 			playerSprite.draw(batch);
+		
+		
 
 	}
 	
@@ -451,6 +471,34 @@ public class Ghost {
 			}
 		}
 		
+		//dashing		
+		if(DASHING){
+			dashing_time += delta;
+			if(dashing_time > DASH_DURATION/5f)
+				body.setLinearVelocity(0, body.getLinearVelocity().y);
+			
+			if(dashing_time > DASH_DURATION){
+				dashing_time = 0;
+				DASHING = false;
+				DASH_BUTTON_COUNT = 0;
+			}
+			
+			
+		}
+		
+		if((SWINGING || DASHING) && !DEAD){
+			
+			//one swing, give one set of damage
+			if((SWINGING && SWING_STORED) || DASHING)
+			for(Enemy e: enemyNearPool){
+				SWING_STORED = false;
+				LevelGenerate.getInstance().enemyGotHit(e, getWeaponDamage(), LEFT_DIRECTION);
+				
+				if(e.DEAD)
+					enemyNearPool.removeValue(e, false);
+			}
+		}
+		
 		//update player movement based on keys pressed right now
 		if(pKeys != null  && CONTROLS)
 			updateMove(delta);
@@ -495,7 +543,10 @@ public class Ghost {
 		body.setTransform(position, 0);
 		body.setLinearVelocity(0, 0);
 		
-		GOT_HIT = LEFT_DIRECTION = DEAD = TELEPORTING_OUT = SWINGING = SWING_STORED = FIRING = false;
+		GOT_HIT = LEFT_DIRECTION = DEAD = TELEPORTING_OUT = SWINGING = SWING_COMBO = SWING_STORED = FIRING = DASHING = false;
+		dashButtonCooler = DASH_BUTTON_SPEED;
+		DASH_BUTTON_COUNT = 0;
+		
 		TELEPORTING_IN = true;
 		CAN_FIRE = true;
 
@@ -531,6 +582,13 @@ public class Ghost {
 	public void swingWeapon(){
 		if(!CAN_FIRE) return;
 
+		if(SWINGING){
+			SWING_COMBO = !SWING_COMBO;
+			
+			if(SWING_COMBO)
+				body.applyLinearImpulse(((LEFT_DIRECTION) ? -1: 1) * 0.4f, 0, 0, 0, true);
+		}
+		
 		//check if any switch is in range and toggle it
 		LevelGenerate.getInstance().checkSwitchToggle(false);
 		
@@ -759,6 +817,33 @@ public class Ghost {
 			
 		}
 		
+		
+		//custom call for update
+		updateMove(0);
+				
+		//dashing
+		//button count == Need taps - 1 
+		if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == true || pKeys.get(MyInputProcessor.CONTROL.RIGHT) == true)
+		{
+			if(!DEAD && DASH_BUTTON_COUNT == 1 && dashButtonCooler > 0 && !DASHING && lastDashDirectionLeft == LEFT_DIRECTION){
+		
+			DASHING = true;
+			//startDashEffect();
+			
+			MyGame.sop("DASHED...->>>");
+					
+			body.applyLinearImpulse(((LEFT_DIRECTION)?-1 : 1) * DASH_FORCE, 0, 0, 0, true);
+			}
+			else{
+				dashButtonCooler = DASH_BUTTON_SPEED;
+				//if not jumping
+				if(pKeys.get(MyInputProcessor.CONTROL.FIRE) == true)
+					DASH_BUTTON_COUNT ++;
+			}
+			
+		}
+		lastDashDirectionLeft = LEFT_DIRECTION;
+		
 		//weapon.setTransform(weapon.getPosition(), frame.weaponAngle);
 		//weapon.setAngularVelocity(frame.weaponAngleV);
 	}
@@ -839,7 +924,20 @@ public class Ghost {
 		
 		//if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == false && pKeys.get(MyInputProcessor.CONTROL.RIGHT) == false)
 		//	stopMove();
+		if(dashButtonCooler > 0){
+			if((lastDashDirectionLeft == LEFT_DIRECTION))
+			{
+				dashButtonCooler -= delta;
+			}
+			else
+				DASH_BUTTON_COUNT = 0;
+		}
+		else
+			DASH_BUTTON_COUNT = 0;
 		
+		//if jump or fired reset dash count
+		if(pKeys.get(MyInputProcessor.CONTROL.UP) == true)
+			DASH_BUTTON_COUNT = 0;
 		
 	}
 
@@ -876,6 +974,8 @@ public class Ghost {
 	public int getWeaponDamage() {
 		if(GOT_HIT)
 			return 0;
+		else if(DASHING)
+			return DASH_DAMAGE;
 		else
 			return WEAPON_DAMAGE;
 	}

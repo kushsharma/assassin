@@ -38,14 +38,18 @@ public class AssetLord {
 	public static final String light_tex = "level/light.png";
 	public static final String pause_back_tex = "level/pause_back_dark.png";
 	public static final String menu_back_tex = "level/sword-background.png";
-	
+	public static final String scan_line_tex = "level/Scanlines.png";
+
 	public static final String player_jump_particle = "particles/player_jump.p";
 	public static final String enemy_kill_particle = "particles/enemy_kill.p";
 	public static final String portal_particle = "particles/portal_rays.p";
 	public static final String gravity_rev_particle = "particles/gravity_reverser.p";
 	public static final String beamspot_particle = "particles/beamSpot.p";
 	public static final String intro_somke_particle = "particles/intro_smoke.p";
-	
+	public static final String power_charge_particle = "particles/power_charge.p";
+	public static final String dashed_particle = "particles/dashed.p";
+	public static final String dashed_left_particle = "particles/dashed_flip.p";
+
 //	public static final String background_shader_tex = "final/grid.png";//tiles_back2
 //	public static final String lazer_music = "lazer.mp3";
 //	public static final String slowdown_sound = "slowdown.mp3";
@@ -88,8 +92,8 @@ public class AssetLord {
 	public static final String enemy_hurt_sound = "sound/Enemy_Hit_Hurt.mp3";
 	public static final String levelup_sound = "sound/Level_Up.mp3";
 	public static final String portal_sound = "sound/Portal.wav";
-	public static final String game_music = "sound/OnReality.mp3";
-	public static final String menu_music = "sound/EvilMenu.mp3";
+	public static final String game_music = "sound/rinse.mp3";
+	//public static final String menu_music = "sound/EvilMenu.mp3";
 
 	private boolean resized = false;
 	
@@ -100,6 +104,7 @@ public class AssetLord {
 		manager.load(light_tex, Texture.class);
 		manager.load(pause_back_tex, Texture.class);
 		manager.load(menu_back_tex, Texture.class);
+		manager.load(scan_line_tex, Texture.class);
 
 
 		//manager.load(button_left_tex, Texture.class);
@@ -107,11 +112,18 @@ public class AssetLord {
 
 		
 		//music
-		//manager.load(lazer_music, Music.class);		
+		manager.load(game_music, Music.class);		
 		
 		//sound
-		//manager.load(slowdown_sound, Sound.class);	
-		
+		manager.load(fire_sound, Sound.class);	
+		manager.load(finish_sound, Sound.class);	
+		manager.load(epicLevelup_sound, Sound.class);	
+		manager.load(coin_sound, Sound.class);	
+		manager.load(player_hurt_sound, Sound.class);	
+		manager.load(enemy_hurt_sound, Sound.class);	
+		manager.load(levelup_sound, Sound.class);	
+		manager.load(portal_sound, Sound.class);	
+
 		
 		//fonts
 
@@ -172,6 +184,13 @@ public class AssetLord {
 		pep.atlasFile = game_atlas;
 		manager.load(player_jump_particle, ParticleEffect.class, pep);
 		manager.load(enemy_kill_particle, ParticleEffect.class, pep);
+		manager.load(power_charge_particle, ParticleEffect.class, pep);
+		
+		//TODO: fix this to atlas
+		//ParticleEffectParameter pepAAA = new ParticleEffectParameter();
+		//pepAAA.imagesDir = Gdx.files.internal("particles/");
+		manager.load(dashed_particle, ParticleEffect.class, pep);
+		manager.load(dashed_left_particle, ParticleEffect.class, pep);
 
 		
 		//TODO:make them fetch from different atlas
@@ -207,8 +226,12 @@ public class AssetLord {
 
 		
 		if(resized) return;
-		manager.get(player_jump_particle, ParticleEffect.class).scaleEffect(MyGame.PTP/2f);
+		manager.get(player_jump_particle, ParticleEffect.class).scaleEffect(MyGame.PTP*0.7f);
 		manager.get(enemy_kill_particle, ParticleEffect.class).scaleEffect(MyGame.PTP);
+		manager.get(power_charge_particle, ParticleEffect.class).scaleEffect(MyGame.PTP*0.6f);
+		manager.get(dashed_particle, ParticleEffect.class).scaleEffect(MyGame.PTP*0.3f);
+		manager.get(dashed_left_particle, ParticleEffect.class).scaleEffect(MyGame.PTP*0.3f);
+
 		//manager.get(gravity_rev_particle, ParticleEffect.class).scaleEffect(MyGame.PTP * 0.75f);
 		//manager.get(beamspot_particle, ParticleEffect.class).scaleEffect(MyGame.PTP);
 

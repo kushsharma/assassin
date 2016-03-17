@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-up" width="114" height="40" tilewidth="32" tileheight="32" nextobjectid="102">
+ <tileset firstgid="1" name="tileset" tilewidth="32" tileheight="32" spacing="2" margin="1" tilecount="256" columns="16">
+  <image source="tileset.png" width="544" height="544"/>
+ </tileset>
+ <layer name="Platform" width="114" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztmQFygjAQRTPYC9D2BFa9QY9QzuHRelTDSMY1BgiQZMP3v5k/BJyA+tyQ4MmQvXG0OXnH/H1SP/SIAT1iQI8Y0CMG9IgBPWJAjxjQIwb0iAE9YqDpsRtJ7OvkQWmPl2HbmnVOuqGvPBcp57EVW5ctHl3kud8Z7XG1RJ93AMXjXE2i12xOj615HQMlKT02Ngebj4k2Mtr16L7nJX3IK6U9yrnmEifNsO3M85y3Zta+vzX9NDzGzlebwLHQfLUm5HuKGetT3QO0x9WLiPH2Q6l1XNVey5bwOFY/Y89r5rLkGjnxa0mT3B61f6eOMb8o65WcHq3Da3vf/ic65WqaiBwC+/69qlavuTzOrR1JWvi/FQYpPbLu9HAe5fjHetwf58hjEv/eFwopy2/kMZKOHGuxkLO/DNfp8Z/dzBFT10vPmYIt482WtdjU5ww56++Psc8DtzxDZDtvu/f4afNl811BW/v6e233Hn+Y3YceMUKPGKFHjNAjRugRIzfsD4t4
+  </data>
+ </layer>
+ <objectgroup name="PlatformOb">
+  <object id="7" x="0" y="0" width="32" height="1024"/>
+  <object id="8" x="0" y="1024" width="3648" height="256"/>
+  <object id="11" x="3488" y="0" width="128" height="896"/>
+  <object id="12" x="2816" y="992" width="32" height="32"/>
+  <object id="13" x="2624" y="608" width="32" height="64"/>
+  <object id="14" x="2656" y="640" width="415.333" height="32"/>
+  <object id="17" x="3072" y="608" width="32" height="64"/>
+  <object id="19" x="2528" y="640" width="32" height="32"/>
+  <object id="20" x="2368" y="704" width="128" height="32"/>
+  <object id="21" x="2272" y="768" width="32" height="32"/>
+  <object id="22" x="1696" y="768" width="479.818" height="32"/>
+  <object id="23" x="1696" y="736" width="32" height="32"/>
+  <object id="24" x="1440" y="544" width="288" height="32"/>
+  <object id="25" x="2304" y="992" width="32" height="32"/>
+  <object id="26" x="1280" y="416" width="32" height="64"/>
+  <object id="27" x="1312" y="448" width="64" height="32"/>
+  <object id="29" x="1344" y="608" width="32" height="64"/>
+  <object id="30" x="1280" y="640" width="64" height="32"/>
+  <object id="32" x="736" y="608" width="32" height="64"/>
+  <object id="33" x="736" y="640" width="96" height="32"/>
+  <object id="34" x="800" y="416" width="32" height="64"/>
+  <object id="35" x="736" y="448" width="64" height="32"/>
+  <object id="38" x="575.333" y="544" width="128" height="32"/>
+  <object id="39" x="640" y="704" width="96" height="32"/>
+  <object id="40" x="544" y="800" width="128" height="32"/>
+  <object id="41" x="448" y="864" width="32" height="32"/>
+  <object id="42" x="256" y="928" width="288" height="32"/>
+  <object id="44" x="864" y="576" width="64" height="32"/>
+  <object id="45" x="1088" y="640" width="32" height="32"/>
+  <object id="46" x="1184.5" y="607.5" width="32" height="32"/>
+  <object id="47" x="832.5" y="383.5" width="192" height="32"/>
+  <object id="48" x="832" y="416" width="32" height="320"/>
+  <object id="49" x="864" y="704" width="416" height="32"/>
+  <object id="50" x="1088" y="384" width="192" height="32"/>
+  <object id="51" x="1248" y="416" width="32" height="288"/>
+  <object id="53" x="3616" y="896" width="32" height="128"/>
+  <object id="57" x="672" y="448" width="32" height="32"/>
+  <object id="58" x="1408" y="448" width="32" height="32"/>
+  <object id="59" x="1440" y="705" width="96" height="32"/>
+  <object id="83" x="2144" y="736" width="32" height="32"/>
+  <object id="89" x="1088" y="991.667" width="32" height="32"/>
+  <object id="94" x="1440" y="512" width="32" height="32"/>
+  <object id="101" x="1696" y="512" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup name="CoinOb"/>
+ <objectgroup name="EnemyOb">
+  <object id="78" x="2720" y="576" width="32" height="32"/>
+  <object id="80" x="2976" y="576" width="32" height="32"/>
+  <object id="84" x="1760" y="704" width="32" height="32"/>
+  <object id="85" x="2048" y="704" width="32" height="32"/>
+  <object id="86" x="1920" y="704" width="32" height="32"/>
+  <object id="87" x="1536" y="480" width="32" height="32"/>
+  <object id="90" x="3008" y="960" width="32" height="32"/>
+  <object id="91" x="864" y="960" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup name="PortalOb">
+  <object id="54" x="32" y="992" width="96" height="32">
+   <properties>
+    <property name="place" value="entry"/>
+    <property name="type" value="sensor"/>
+   </properties>
+  </object>
+  <object id="55" x="0" y="1056">
+   <properties>
+    <property name="place" value="entry"/>
+    <property name="type" value="body"/>
+   </properties>
+   <polygon points="0,0 32,-32 128,-32 160,0"/>
+  </object>
+  <object id="56" x="3520" y="992" width="96" height="32">
+   <properties>
+    <property name="place" value="exit"/>
+    <property name="type" value="sensor"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="SpikesOb">
+  <object id="60" x="867" y="691" width="87" height="9"/>
+  <object id="61" x="995" y="691" width="247" height="9"/>
+  <object id="64" x="801.636" y="625.091" width="28.8182" height="13.4545"/>
+  <object id="65" x="737.409" y="433.273" width="28.8182" height="13.4545"/>
+  <object id="66" x="1345.41" y="433.455" width="28.8182" height="13.4545"/>
+  <object id="67" x="1281.23" y="625.273" width="28.8182" height="13.4545"/>
+  <object id="68" x="1377.09" y="1008.77" width="92.4091" height="13.4545"/>
+  <object id="69" x="2465.05" y="689.273" width="28.8182" height="13.4545"/>
+  <object id="70" x="2816.88" y="977.564" width="28.8182" height="13.4545"/>
+  <object id="71" x="2862.84" y="993.648" width="28.8182" height="13.4545" rotation="90"/>
+  <object id="72" x="2814.47" y="993.648" width="28.8182" height="13.4545" rotation="90"/>
+  <object id="73" x="3326.25" y="1022.73" width="60.894" height="13.4545" rotation="180"/>
+  <object id="95" x="705.5" y="1009" width="91.5" height="14.25"/>
+  <object id="96" x="593.25" y="770.25" width="13.75" height="27.75"/>
+  <object id="97" x="608.909" y="752.364" width="29.0909" height="14.9091"/>
+  <object id="99" x="641.636" y="767.455" width="12.9091" height="31.8182"/>
+ </objectgroup>
+ <objectgroup name="LaserOb"/>
+ <objectgroup name="SwitchOb">
+  <object id="81" x="2848" y="576" width="32" height="32">
+   <properties>
+    <property name="id" value="1"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
