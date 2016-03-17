@@ -97,6 +97,10 @@ public class Player {
 	
 	public boolean LEFT_DIRECTION = false;
 	
+	public static enum DEATH_BY{
+		ENEMY, LASERS, SPIKES
+	}
+	
 	GameScreen gameScreen = GameScreen.getInstance();
 		
 	Body body;
@@ -525,6 +529,7 @@ public class Player {
 				DASH_BUTTON_COUNT = 0;
 			}
 			
+			
 		}
 		
 		if((SWINGING || DASHING) && !DEAD){
@@ -685,10 +690,12 @@ public class Player {
 	}
 
 
-	public void setDeath() {
+	public void setDeath(DEATH_BY deathBy) {
 		//check time to avoid instant death after respawning
-		if(GOT_HIT || DEAD || time < 0.5f || DASHING) return;
-				
+		if(GOT_HIT || DEAD || time < 0.5f) return;
+		
+		if(deathBy == DEATH_BY.ENEMY && DASHING) return;
+		
 		CONTROLS = CAN_FIRE = false;
 		GOT_HIT = true;
 		
@@ -814,7 +821,7 @@ public class Player {
 			else{
 				dashButtonCooler = DASH_BUTTON_SPEED;
 				//if not jumping
-				//if(pKeys.get(MyInputProcessor.CONTROL.UP) == false && pKeys.get(MyInputProcessor.CONTROL.FIRE) == false)
+				if(pKeys.get(MyInputProcessor.CONTROL.FIRE) == true)
 					DASH_BUTTON_COUNT ++;
 			}
 			
@@ -832,7 +839,7 @@ public class Player {
 
 		if(!FIRING){
 			//if fire key hold, shoot bullets
-			if(pKeys.get(MyInputProcessor.CONTROL.FIRE) == true){ //error here
+			if(pKeys.get(MyInputProcessor.CONTROL.FIRE) == true && !DASHING){ //error here
 				fire_hold += delta;
 				//MyGame.sop(fire_hold);
 			}
@@ -859,12 +866,12 @@ public class Player {
 			DASH_BUTTON_COUNT = 0;
 		
 		//if jump or fired reset dash count
-		if(pKeys.get(MyInputProcessor.CONTROL.UP) == true || pKeys.get(MyInputProcessor.CONTROL.FIRE) == true)
+		if(pKeys.get(MyInputProcessor.CONTROL.UP) == true)
 			DASH_BUTTON_COUNT = 0;
 		
-		if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == true && fire_hold == 0){
-			
-			moveLeft();
+		if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == true){
+			if(fire_hold == 0)
+				moveLeft();
 			if(LEFT_DIRECTION != true){
 				LEFT_DIRECTION = true;
 				
@@ -894,8 +901,10 @@ public class Player {
 			}
 									
 		}
-		else if(pKeys.get(MyInputProcessor.CONTROL.RIGHT) == true && fire_hold == 0){
-			moveRight();
+		else if(pKeys.get(MyInputProcessor.CONTROL.RIGHT) == true){
+			if(fire_hold == 0)
+				moveRight();
+			
 			if(LEFT_DIRECTION != false){
 				LEFT_DIRECTION = false;
 				

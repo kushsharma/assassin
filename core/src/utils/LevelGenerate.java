@@ -881,7 +881,7 @@ public class LevelGenerate {
 				if(e.getSensorFixture().equals(fixtureE) && Player.getInstance().getSensorFixture().equals(fixtureP)){
 				
 				//player died
-				Player.getInstance().setDeath();
+				Player.getInstance().setDeath(Player.DEATH_BY.ENEMY);
 				
 				//if(GameScreen.BACKGROUND_MUSIC)
 				//	Gdx.input.vibrate(50);
@@ -901,7 +901,7 @@ public class LevelGenerate {
 			{	
 				if(l.CAN_HURT){
 					//player died
-					Player.getInstance().setDeath();					
+					Player.getInstance().setDeath(Player.DEATH_BY.LASERS);					
 				}
 								
 				break;
@@ -1170,7 +1170,10 @@ public class LevelGenerate {
 	 * */
 	public void swingSword(boolean byPlayer) {		
 		Player.getInstance().swingWeapon();	
-		GameScreen.getInstance().shakeThatAss(true);
+		
+		if(!Player.getInstance().DASHING)
+			GameScreen.getInstance().shakeThatAss(true);
+		
 		checkSwitchToggle(byPlayer);
 	}
 	

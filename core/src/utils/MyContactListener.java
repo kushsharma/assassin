@@ -51,7 +51,7 @@ public class MyContactListener implements ContactListener{
 		{//handle spikes kills
 			
 			//start player anime
-			pl.setDeath();
+			pl.setDeath(Player.DEATH_BY.SPIKES);
 			return;
 		}
 		
