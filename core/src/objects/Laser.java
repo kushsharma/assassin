@@ -144,12 +144,13 @@ public class Laser {
 		laserMiddle.setSize(width, height);
 		laserMiddle.setPosition(3f, 2);
 		laserMiddle.setOriginCenter();
+		laserMiddle.setColor(Color.toFloatBits(0.8f, 0.2f, 0.2f, 0.8f));
 		
 		laserMiddleGlow = new Sprite(game_atlas.findRegion("laser-middle-glow"));
 		laserMiddleGlow.setSize(width, height);
 		laserMiddleGlow.setPosition(3f, 2);
 		laserMiddleGlow.setOriginCenter();
-		laserMiddleGlow.setColor(color);
+		laserMiddleGlow.setColor(Color.toFloatBits(0.8f, 0.2f, 0.2f, 0.5f));
 
 		laserEnd = new Sprite(game_atlas.findRegion("laser-end"));
 		laserEnd.setSize(width, width * laserEnd.getHeight()/laserEnd.getWidth());
@@ -174,13 +175,14 @@ public class Laser {
 		
 		if(CAN_HURT)
 		{
+			
 			laserMiddle.draw(batch);
 			laserMiddleGlow.draw(batch);
 		}
 		else
 		{
-			laserMiddle.draw(batch, 0.3f);
-			laserMiddleGlow.draw(batch, 0.3f);
+			//laserMiddle.draw(batch, 0.1f);
+			//laserMiddleGlow.draw(batch, 0.0f);
 		}
 		
 		laserEnd.draw(batch);

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-up" width="114" height="40" tilewidth="32" tileheight="32" nextobjectid="105">
+<map version="1.0" orientation="orthogonal" renderorder="right-up" width="115" height="40" tilewidth="32" tileheight="32" nextobjectid="105">
  <tileset firstgid="1" name="tileset" tilewidth="32" tileheight="32" spacing="2" margin="1" tilecount="256" columns="16">
   <image source="tileset.png" width="544" height="544"/>
  </tileset>
- <layer name="Platform" width="114" height="40">
+ <layer name="Platform" width="115" height="40">
   <data encoding="base64" compression="zlib">
-   eJztlYsNgjAYBom6AOgEiiM4gvuvZEkkElJ5Wh7nXfIlf0mgf3tNKTPZG9eQsvWsPZbto0cGemSgRwZ6ZKBHBnpkoEcGemSgRwZ6ZKBHBnpkoEcGemSgRwZ6ZKBHBnpkoEcGemSgRwZ6ZKBHBnpkoEcGv/B4CDmGnCJ1PY6Rj5xnKKm+u2Vqj3n2Wf898Zwx111nYWzdHP8LMWePxHMWIeeQy7suIs/m1M3xGPZ8P8ScpfZ4WzBD9pBwP8ScPRPOV+3r1jxu6X741m/fOmLOqv/llLNW133vLulxSL9r9tO1r3PvgcrjlLNW133vLrlvQ/pds5+ufZ17D5QLr82kiR4Z0SMjemREj4zokZEX4haLpw==
+   eJztlYsJwjAYBkVdoNUJtI7gCO6/kilYKJL0ZdPHeQcf/Am0+ZsLaXWQvXELqSLzsTnZNrrkoEsOuuSgSw665KBLDrrkoEsOuuSgSw665KBLDrrkoEsOuuSgSw665KBLDrrkoEsOuuSgSw665KBLDrrkMJfLY8gp5Bypm3GMYuQ6Q8n13i3TuCy+8si8bsx313kYW7fH/0LK2TPzumXIJeT6qcvI3C91ezyGPd8TKWe5Xd4XzJB9JNwTKWevjGvWe7s1l1u6J1L99n1Hyln9D51y5pq679klXQ7pd81+uvZ1jruhdjnlzDV137NL7t2Qftfsp2tf57gPqoW/z+SLLjnRJSe65ESXnOiSkzfVMIyw
   </data>
  </layer>
  <objectgroup name="PlatformOb">
@@ -76,12 +76,12 @@
   </object>
  </objectgroup>
  <objectgroup name="LaserOb">
-  <object id="47" x="576" y="576" width="32" height="256">
+  <object id="47" x="576" y="576" width="32" height="286.667">
    <properties>
     <property name="id" value="1"/>
    </properties>
   </object>
-  <object id="89" x="3328" y="800" width="32" height="192">
+  <object id="89" x="3328" y="799" width="32" height="225">
    <properties>
     <property name="id" value="2"/>
    </properties>

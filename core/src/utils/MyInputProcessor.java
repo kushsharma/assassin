@@ -64,7 +64,7 @@ public class MyInputProcessor implements InputProcessor{
 		if(keycode == Keys.SPACE || keycode == Keys.X){
 			makeActionFire();			
 		}
-		pl.updateKeys(PLAYER_KEYS);		
+		//pl.updateKeys(PLAYER_KEYS);		
 		LevelGenerate.getInstance().updateMove(PLAYER_KEYS);
 
 		
@@ -126,7 +126,7 @@ public class MyInputProcessor implements InputProcessor{
 			//if(LevelGenerate.MACHINE_GUN)
 				leaveActionFire();
 		}
-		pl.updateKeys(PLAYER_KEYS);
+		//pl.updateKeys(PLAYER_KEYS);
 		LevelGenerate.getInstance().updateMove(PLAYER_KEYS);
 
 		
@@ -145,9 +145,14 @@ public class MyInputProcessor implements InputProcessor{
 		if(keycode == Keys.BACK || keycode == Keys.ESCAPE){
 			
 			if(GameScreen.CURRENT_STATE == GameState.RUNNING)// && !GameScreen.getInstance().levelClearScreen.isVisible())
-				GameScreen.CURRENT_STATE = GameState.PAUSED;
-			//else if(GameScreen.CURRENT_STATE == GameState.PAUSED)
-			//	gs.resumeGame();
+				gs.pauseGame();
+			else if(GameScreen.CURRENT_STATE == GameState.PAUSED)
+			{
+				if(GameScreen.SOFT_DEBUG || GameScreen.DEBUG)
+					gs.returnToMainMenu();
+				else
+					gs.resumeGame();
+			}
 			else
 				gs.returnToMainMenu();
 
@@ -302,7 +307,7 @@ public class MyInputProcessor implements InputProcessor{
 
 		if(!LevelGenerate.MACHINE_GUN)
 		{
-			LevelGenerate.getInstance().swingSword();
+			LevelGenerate.getInstance().swingSword(true);
 			//LevelGenerate.getInstance().fireBullet();
 			Player.getInstance().CAN_FIRE = false;
 		}

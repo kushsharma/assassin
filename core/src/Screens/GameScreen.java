@@ -80,13 +80,16 @@ import utils.ScoreManager;
  * bug: recorder doesn't work, when last_rec == rec in count _ fixed
  * bug: clear last_recordTape when level is changed _ fixed
  * add player bullet power charge particles
- * fix pause screen
+ * fix pause screen _ fixed
+ * make better lasers
+ * fix player ghost switch toggles
+ * add player dash
  * 
  */
 public class GameScreen implements Screen {
 
-    public static boolean DEBUG = false;
-    public static boolean SOFT_DEBUG = false;
+    public static boolean DEBUG = true;
+    public static boolean SOFT_DEBUG = true;
     public static boolean DISABLE_ADS = true;
 
     public static boolean RENDER_LIGHTS = true;
@@ -170,6 +173,8 @@ public class GameScreen implements Screen {
         _gameScreen = this;
         
 		prefs = Gdx.app.getPreferences(MainMenuScreen.PreferenceName);
+		GameScreen.BACKGROUND_MUSIC = prefs.getBoolean("music", true);
+		
 		/////////
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, bWIDTH, bHEIGHT);
@@ -678,10 +683,19 @@ public class GameScreen implements Screen {
 		stage.addActor(pauseScreen);
 	}
 	
+	public void pauseGame(){
+		if(GameScreen.CURRENT_STATE == GameState.PAUSED) return;
+		
+		showPauseScreen();
+		level.pauseMusic();
+		GameScreen.CURRENT_STATE = GameState.PAUSED;
+
+	}
+	
 	public void showPauseScreen(){
 		pauseScreen.setVisible(true);
 		pauseBack.setVisible(true);
-		level.pauseMusic();
+		
 
 	}
 	
@@ -692,6 +706,8 @@ public class GameScreen implements Screen {
 	}
 	
 	public void resumeGame(){
+		if(GameScreen.CURRENT_STATE == GameState.RUNNING) return;
+		
 		hidePauseScreen();
 		GameScreen.CURRENT_STATE = GameState.RUNNING;
 		level.resumeEverything();
@@ -887,8 +903,10 @@ public class GameScreen implements Screen {
 		float y = Interpolation.linear.apply(position.y, Math.max(plY, 6), delta*lerp);
 		position.y = y;
 
-		//max right bound			
-		float plX = Math.min(level.MAP_RIGHT_BOUND - 14.7f, player.getPosition().x + offsetX);
+		//max right bound			14.7
+		float plX = Math.min(level.MAP_RIGHT_BOUND - bWIDTH/2f, player.getPosition().x + offsetX);
+		//MyGame.sop("Player position in x" + player.getPosition().x + " out of "+level.MAP_RIGHT_BOUND);
+		
 		//max left bound
 		float x = Interpolation.linear.apply(position.x, Math.max(plX, 10), delta*lerp);
 		position.x = x;
@@ -949,14 +967,14 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
-
+    	pauseGame();
     }
 
     @Override
 	public void resume() {
 		
-		//CURRENT_STATE = GameState.PAUSED;
-		//showPauseScreen();
+    	//don't resume automatically
+    	//resumeGame();
 	}
 
 	@Override

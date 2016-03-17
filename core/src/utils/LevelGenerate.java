@@ -145,7 +145,7 @@ public class LevelGenerate {
 		try {
 			switch(CURRENT_LEVEL){			
 			case 1:
-				tileMap = tileLoader.load("levels/level-1.tmx");
+				tileMap = tileLoader.load("levels/level-zero.tmx");
 				break;
 			case 2:
 				tileMap = tileLoader.load("levels/level-2.tmx");
@@ -169,8 +169,13 @@ public class LevelGenerate {
 		}		
 		
 		MapProperties prop = tileMap.getProperties();		
-		MAP_RIGHT_BOUND = (float)prop.get("width", Integer.class)/2f;
+		MAP_RIGHT_BOUND = (float)prop.get("width", Integer.class);
 		MAP_UPPER_BOUND = (float)prop.get("height", Integer.class);
+		int tile_width = prop.get("tilewidth", Integer.class);
+		//calculating actual map right bound
+		MAP_RIGHT_BOUND = MAP_RIGHT_BOUND * tile_width * PTP;
+		
+		//MyGame.sop("Map Width:"+MAP_RIGHT_BOUND);
 		
 		rayHandler = new RayHandler(world, WIDTH/5, HEIGHT/5);
 		rayHandler.setAmbientLight(0.95f);
@@ -727,10 +732,14 @@ public class LevelGenerate {
 	}
 	
 	public void pauseMusic() {
-//		if(gameMusic != null)
-//			gameMusic.pause();
+		if(GameScreen.BACKGROUND_MUSIC){
+
+		if(gameMusic != null)
+			gameMusic.pause();
 //		if(menuMusic != null)
 //			menuMusic.pause();
+		
+		}
 	}
 	
 	public void pauseEverything() {
@@ -740,8 +749,8 @@ public class LevelGenerate {
 
 	public void resumeEverything() {
 		if(GameScreen.BACKGROUND_MUSIC){
-//			if(gameMusic != null)
-//				gameMusic.play();
+			if(gameMusic != null)
+				gameMusic.play();
 //			if(menuMusic != null)
 //			{
 //				if(CURRENT_LEVEL < 1)
@@ -1112,26 +1121,15 @@ public class LevelGenerate {
 	
 	/** When ghost tries to enable switch */
 	public void switchGhostCollide(Fixture switchFix, boolean inRange){
-		//same as player
-		switchPlayerCollide(switchFix, inRange);
+		switchCollide(switchFix, inRange, false);
 	}
 	
 	/** level portal switch **/
 	public void switchPlayerCollide(Fixture lSwitch, boolean inRange) {
-//		if(levelSwitch!= null && lSwitch.equals(levelSwitch.getFixture())){
-//			levelSwitch.toggle();
-//			
-//			if(levelSwitch.STATE_ENABLED)
-//			{//enable protal
-//				toggleExitPortalSwitch(true);
-//			}
-//			else{
-//				//disable portal
-//				toggleExitPortalSwitch(false);
-//			}
-//					
-//		}
-		
+		switchCollide(lSwitch, inRange, true);		
+	}
+	
+	public void switchCollide(Fixture lSwitch, boolean inRange, boolean isPlayer){
 		//switch states
 		boolean state = true;
 		
@@ -1140,7 +1138,7 @@ public class LevelGenerate {
 				
 				//right now just set the state of switch to be ready for enabled on sword swing
 				if(lSwitch.equals(s.getFixture())){					
-					s.toggleReady(inRange);	
+					s.toggleReady(inRange, isPlayer);	
 					
 				}
 				
@@ -1164,20 +1162,25 @@ public class LevelGenerate {
 				toggleExitPortalSwitch(false);
 			}
 		}
+		
 	}
 
-	/** Player will swing sword to kill enemies */
-	public void swingSword() {		
+	/** Player will swing sword to kill enemies 
+	 * @param byPlayer see if player or ghost used this method call
+	 * */
+	public void swingSword(boolean byPlayer) {		
 		Player.getInstance().swingWeapon();	
 		GameScreen.getInstance().shakeThatAss(true);
-		checkSwitchToggle();
+		checkSwitchToggle(byPlayer);
 	}
 	
-	/**If any switch is ready, toggle it*/
-	public void checkSwitchToggle(){
+	/**If any switch is ready, toggle it
+	 * @param byPlayer see if player or ghost used this method call
+	 * */
+	public void checkSwitchToggle(boolean byPlayer){
 		//check for switch toggling
 		for(Switch s:switchPool){
-			s.toggle();
+			s.toggle(byPlayer);
 		}
 	}
 	
@@ -1190,7 +1193,7 @@ public class LevelGenerate {
 		{
 			if(last_bullet > 0.1f)
 			{
-				swingSword();
+				swingSword(true); //true for player
 				//fireBullet();
 				last_bullet = 0;
 			}

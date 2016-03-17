@@ -46,7 +46,10 @@ public class Switch {
 	
 	//current type
 	public boolean STATE_ENABLED = false;
-	public boolean READY = false;
+	public boolean PLAYER_READY = false; // if player did something to make this ready
+	public boolean TOGGLE_BY_PLAYER = false; // if player did something to make this toggle 
+	public boolean GHOST_READY = false; // if ghost did something to make this ready
+	public boolean TOGGLE_BY_GHOST = false; // if ghost did something to make this toggle 
 	
 	//used to unlock lasers
 	public int auth_id = 0;
@@ -179,7 +182,7 @@ public class Switch {
 		lightE.disable();
 		lightD.enable();
 		
-		READY = false;
+		PLAYER_READY = GHOST_READY = TOGGLE_BY_PLAYER = TOGGLE_BY_GHOST = false;
 	}
 	
 	public Fixture getFixture(){
@@ -199,13 +202,22 @@ public class Switch {
 
 	}
 	
-	public void toggleReady(boolean inRange){
+	public void toggleReady(boolean inRange, boolean isPlayer){
 		//if player is swinging weapon only then toggle switch
-		READY = inRange;		
+		if(isPlayer){
+			PLAYER_READY = inRange;
+		}
+		else{
+			GHOST_READY = inRange;
+		}		
 	}
 	
-	public void toggle(){
-		if(!READY) return;
+	public void toggle(boolean isPlayer){
+		if(!PLAYER_READY && !GHOST_READY) return;
+		
+		//dont let ghost and player interfare each other
+		if(!((PLAYER_READY && isPlayer) || (GHOST_READY && !isPlayer))) return; 
+		
 		
 		STATE_ENABLED = !STATE_ENABLED;
 		

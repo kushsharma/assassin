@@ -45,8 +45,8 @@ public class Ghost {
 	private float height = 1.0f * 0.9f, width = 0.5f * 0.9f;
 	private Vector2 position = new Vector2();
 	Vector2 startPos = new Vector2();
-	private float Speed = 4.6f * 0.8f; // 4.6f
-	private float Jump = 1.45f;
+	private float Speed = Player.Speed; // 4.6f
+	private float Jump = Player.Jump;
 	private float gravityScale = 0f;
 	
 	public boolean GLOWING = false;
@@ -532,7 +532,7 @@ public class Ghost {
 		if(!CAN_FIRE) return;
 
 		//check if any switch is in range and toggle it
-		LevelGenerate.getInstance().checkSwitchToggle();
+		LevelGenerate.getInstance().checkSwitchToggle(false);
 		
 		SWINGING = true;
 		swing_time = 0;

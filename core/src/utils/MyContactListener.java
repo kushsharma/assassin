@@ -255,7 +255,7 @@ public class MyContactListener implements ContactListener{
 			return;
 		}
 		
-		//handle switch for enabling level exit portal
+		//handle switch for enabling/disabling level lasers
 		if((contact.getFixtureA().equals(pl.getBodyFixture()) == true && B.getUserData().equals("switch") == true) || (A.getUserData().equals("switch") == true && contact.getFixtureB().equals(pl.getBodyFixture()) == true ))
 		{
 			if(contact.getFixtureA().equals(pl.getBodyFixture()) == true)

@@ -43,8 +43,8 @@ public class Player {
 	private float height = 1.0f * 0.9f, width = 0.5f * 0.9f;
 	private Vector2 position = new Vector2();
 	Vector2 startPos = new Vector2();
-	private float Speed = 4.6f * 0.8f; // 4.6f
-	private float Jump = 1.45f;
+	public static float Speed = 4.6f * 0.8f; // 4.6f
+	public static float Jump = 1.40f;
 	private float gravityScale = 0f;
 	
 	public boolean GLOWING = false;
@@ -64,7 +64,19 @@ public class Player {
 	public boolean Revived = false;
 	public int JUMP_DAMAGE = 2;
 	public static int WEAPON_DAMAGE = 5;
+	public static int DASH_DAMAGE = 20;
+
+	//player dash
+	public static final float DASH_FORCE = Speed; //dash force
+	public static final float DASH_DURATION = 0.5f; //time it takes for dash
+	public static final float DASH_BUTTON_SPEED = 0.5f; // time it needs by player to make dash
+	public boolean DASHING = false; //if its dashing right now
+	public int DASH_BUTTON_COUNT = 0;
+	public float dashing_time = 0; //for how long we are dashing
+	private float dashButtonCooler = DASH_BUTTON_SPEED; // time last time dash button is pressed [left/right button]
+	private boolean lastDashDirectionLeft = false; //direction of last dash
 	
+	//player swing combos
 	public boolean SWINGING = false; //if player is swinging right now
 	public boolean SWING_COMBO = false; //if player swinged twice
 	public boolean SWING_STORED = false; //player is swinging and haven't hurt anyone till now
@@ -480,16 +492,6 @@ public class Player {
 				swing_time = 0;
 			}
 			
-
-			//one swing, give one set of damage
-			if(SWING_STORED && !DEAD)
-			for(Enemy e: enemyNearPool){
-				SWING_STORED = false;
-				LevelGenerate.getInstance().enemyGotHit(e, getWeaponDamage(), LEFT_DIRECTION);
-				
-				if(e.DEAD)
-					enemyNearPool.removeValue(e, false);
-			}
 		}
 		else
 			SWING_STORED = false;
@@ -510,6 +512,34 @@ public class Player {
 				bullets_fired = 0;
 			}
 		}
+		
+		//dashing		
+		if(DASHING){
+			dashing_time += delta;
+			if(dashing_time > DASH_DURATION/5f)
+				body.setLinearVelocity(0, body.getLinearVelocity().y);
+			
+			if(dashing_time > DASH_DURATION){
+				dashing_time = 0;
+				DASHING = false;
+				DASH_BUTTON_COUNT = 0;
+			}
+			
+		}
+		
+		if((SWINGING || DASHING) && !DEAD){
+			
+			//one swing, give one set of damage
+			if((SWINGING && SWING_STORED) || DASHING)
+			for(Enemy e: enemyNearPool){
+				SWING_STORED = false;
+				LevelGenerate.getInstance().enemyGotHit(e, getWeaponDamage(), LEFT_DIRECTION);
+				
+				if(e.DEAD)
+					enemyNearPool.removeValue(e, false);
+			}
+		}
+		
 		
 		//update player movement based on keys pressed right now
 		if(pKeys != null && CONTROLS)
@@ -555,13 +585,15 @@ public class Player {
 		weapon.setAngularVelocity(0);
 		*/	
 		
-		GOT_HIT = LEFT_DIRECTION = DEAD = TELEPORTING_OUT = SWINGING = SWING_COMBO = SWING_STORED = FIRING = false;
-
+		GOT_HIT = LEFT_DIRECTION = DEAD = TELEPORTING_OUT = SWINGING = SWING_COMBO = SWING_STORED = FIRING = DASHING = false;
+		dashButtonCooler = DASH_BUTTON_SPEED;
+		DASH_BUTTON_COUNT = 0;
+		
 		TELEPORTING_IN = true;
 		
 		CONTROLS = CAN_FIRE = true;
 		deathClock = 0;
-		time = swing_time = fire_hold = 0;
+		time = swing_time = fire_hold = dashing_time = 0;
 		visible = true;
 		winClock = 0;
 		CAN_FIRE = true;
@@ -655,7 +687,7 @@ public class Player {
 
 	public void setDeath() {
 		//check time to avoid instant death after respawning
-		if(GOT_HIT || DEAD || time < 0.5f) return;
+		if(GOT_HIT || DEAD || time < 0.5f || DASHING) return;
 				
 		CONTROLS = CAN_FIRE = false;
 		GOT_HIT = true;
@@ -752,14 +784,45 @@ public class Player {
 
 	public void stopMove() {
 		//fix this somehow. i don;t know - maybe fixed
-		
+				
 		if(CONTROLS)
-		body.setLinearVelocity(0, body.getLinearVelocity().y);
+			body.setLinearVelocity(0, body.getLinearVelocity().y);
+		
+				
 	}
 
-	/** update player temporary key cache */
+	/** update player temporary key cache 
+	 * this is called once
+	 * */
 	public void updateKeys(HashMap<MyInputProcessor.CONTROL, Boolean> keys){
 		pKeys = keys;
+		
+		//custom call for update
+		updateMove(0);
+				
+		//dashing
+		//button count == Need taps - 1 
+		if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == true || pKeys.get(MyInputProcessor.CONTROL.RIGHT) == true)
+		{
+			if(!DEAD && DASH_BUTTON_COUNT == 1 && dashButtonCooler > 0 && !DASHING && lastDashDirectionLeft == LEFT_DIRECTION){
+		
+			DASHING = true;
+			MyGame.sop("DASHED...->>>");
+					
+			body.applyLinearImpulse(((LEFT_DIRECTION)?-1 : 1) * DASH_FORCE, 0, 0, 0, true);
+			}
+			else{
+				dashButtonCooler = DASH_BUTTON_SPEED;
+				//if not jumping
+				//if(pKeys.get(MyInputProcessor.CONTROL.UP) == false && pKeys.get(MyInputProcessor.CONTROL.FIRE) == false)
+					DASH_BUTTON_COUNT ++;
+			}
+			
+		}
+		lastDashDirectionLeft = LEFT_DIRECTION;
+
+		
+
 	}
 	
 	/** check for any update due to key input */
@@ -783,6 +846,21 @@ public class Player {
 				//MyGame.sop("Bullet fired");
 			}
 		}
+		
+		if(dashButtonCooler > 0){
+			if((lastDashDirectionLeft == LEFT_DIRECTION))
+			{
+				dashButtonCooler -= delta;
+			}
+			else
+				DASH_BUTTON_COUNT = 0;
+		}
+		else
+			DASH_BUTTON_COUNT = 0;
+		
+		//if jump or fired reset dash count
+		if(pKeys.get(MyInputProcessor.CONTROL.UP) == true || pKeys.get(MyInputProcessor.CONTROL.FIRE) == true)
+			DASH_BUTTON_COUNT = 0;
 		
 		if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == true && fire_hold == 0){
 			
@@ -814,6 +892,7 @@ public class Player {
 				weaponJoint = world.createJoint(jointDef);
 				*/
 			}
+									
 		}
 		else if(pKeys.get(MyInputProcessor.CONTROL.RIGHT) == true && fire_hold == 0){
 			moveRight();
@@ -839,7 +918,11 @@ public class Player {
 				weaponJoint = world.createJoint(jointDef);
 				*/
 			}
-		}
+			
+		}		
+		
+		
+		
 		//else if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == false && keys.get(MyInputProcessor.CONTROL.RIGHT) == false)
 		//	stopMove();
 		
@@ -868,6 +951,8 @@ public class Player {
 	public int getWeaponDamage() {
 		if(GOT_HIT)
 			return 0;
+		else if(DASHING)
+			return DASH_DAMAGE;
 		else
 			return WEAPON_DAMAGE;
 	}
