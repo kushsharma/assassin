@@ -365,7 +365,7 @@ public class Cinema {
 					
 					break;
 				}
-				case MOV_TUT_LEVEL_3:{
+				case MOV_TUT_LEVEL_2:{
 					switch(MOV_STAGE){
 					case 1:{
 						showDialogue("You have been assigned to kill lord Synth.");
@@ -386,7 +386,7 @@ public class Cinema {
 					
 					break;
 				}
-				case MOV_TUT_LEVEL_4:{
+				case MOV_TUT_LEVEL_3:{
 					switch(MOV_STAGE){
 					case 1:{
 						showDialogue("Every time you die\nyou will get a chance to relive once more.");
@@ -408,7 +408,7 @@ public class Cinema {
 					}
 					break;
 				}
-				case MOV_TUT_LEVEL_5:{
+				case MOV_TUT_LEVEL_4:{
 					switch(MOV_STAGE){
 					case 1:{
 						showDialogue("Don't be scared, I am your inner voice.");
@@ -432,15 +432,26 @@ public class Cinema {
 					}
 					break;
 				}
-				case MOV_TUT_LEVEL_6:{
+				case MOV_TUT_LEVEL_5:{
 					switch(MOV_STAGE){
 					case 1:{
-						showDialogue("Ask you master to rate this game well.\nThis is the last stage!");
+						showDialogue("You can even perform dash kill.");
 						break;
 					}
 					case 2:{
+						showDialogue("Hold fire button and double tap forward/backward.");
+						showNotify("Dash Unlocked");
+
+						break;
+					}
+					case 3:{
+						showDialogue("Dash is super powerful.");
+						break;
+					}
+					case 4:{
 						hideDialogue();
-						
+						hideNotify();
+
 						MOV_STAGE = 0;
 						CINEMA_TYPE = MOV_NONE;
 						break;
@@ -448,14 +459,14 @@ public class Cinema {
 					}
 					break;
 				}
-				case MOV_TUT_LEVEL_7:{
+				case MOV_TUT_LEVEL_6:{
 					switch(MOV_STAGE){
 					case 1:{
-						showDialogue(".");
+						showDialogue("You did well.");
 						break;
 					}
 					case 2:{
-						showDialogue("!");
+						//showDialogue("!");
 						break;
 					}
 					case 3:{
@@ -468,7 +479,7 @@ public class Cinema {
 					}
 					break;
 				}
-				case MOV_TUT_LEVEL_8:{
+				case MOV_TUT_LEVEL_7:{
 					switch(MOV_STAGE){
 					case 1:{
 						showDialogue("I don't know why but i just love\nseeing you try so hard...");
@@ -856,29 +867,30 @@ public class Cinema {
 	public void levelUpdate(int level) {
 		switch(level){
 		case 1:{
-			start(MOV_TUT_LEVEL_3);
+			start(MOV_TUT_LEVEL_2);
 			break;
 		}
 		case 2:{
-			start(MOV_TUT_LEVEL_4);
+			start(MOV_TUT_LEVEL_3);
 			break;
 		}
 		case 3:{
-			start(MOV_TUT_LEVEL_5);
+			start(MOV_TUT_LEVEL_4);
 			break;
 		}
 		case 4:{
+			start(MOV_TUT_LEVEL_5);
+			break;
+		}
+		case 5:{
 			start(MOV_TUT_LEVEL_6);
 			break;
 		}
-		case 7:{
+		case 6:{
 			start(MOV_TUT_LEVEL_7);
 			break;
 		}
-		case 8:{
-			start(MOV_TUT_LEVEL_8);
-			break;
-		}
+		///////
 		case 9:{
 			start(MOV_TUT_LEVEL_9);
 			break;

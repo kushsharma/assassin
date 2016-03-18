@@ -528,7 +528,7 @@ public class GameScreen implements Screen {
 		levelClearScreen.addActor(menuText);		
 
 		
-		TextButton coinsCollected = new TextButton("COINS COLLECTED", smallStyle);
+		TextButton coinsCollected = new TextButton("STARS COLLECTED", smallStyle);
 		coinsCollected.align(Align.left);
 		coinsCollected.setPosition(WIDTH / 4, HEIGHT * 0.7f);
 		

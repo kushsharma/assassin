@@ -46,7 +46,8 @@ public class Player {
 	public static float Speed = 4.6f * 0.8f; // 4.6f
 	public static float Jump = 1.40f;
 	private float gravityScale = 0f;
-	
+	private float playerSpriteWidth,playerSpriteHeight;
+
 	public boolean GLOWING = false;
 	private boolean FLYING = false; // disable player gravity effect
 	private float flightTime = 0f;
@@ -94,8 +95,10 @@ public class Player {
 	
 	public boolean CAN_JUMP = true;
 	public boolean CAN_FIRE = true;
+	public boolean CAN_DASH = false;
 	
 	public boolean LEFT_DIRECTION = false;
+	public static int MINIMUM_DASH_LEVEL = 0;
 	
 	public static enum DEATH_BY{
 		ENEMY, LASERS, SPIKES
@@ -115,7 +118,7 @@ public class Player {
 	
 	TextureRegion playerTexR;
 	Texture playerTex;
-	Sprite playerSprite, hitSprite;
+	Sprite playerSprite, hitSprite, teleportSprite;
 	Sprite glow;
 	ParticleEffect jumpParticle, chargeParticle, dashParticle, dashLeftParticle;
 	
@@ -130,7 +133,7 @@ public class Player {
 	float lastJumpTime = 0;
 	float deathClock = 0;
 	float winClock = 0;
-	Animation idleAnime, moveAnime, jumpAnime, swingAnime, swingComboAnime, fireIdleAnime, fireMoveAnime, megaIdleAnime, megaMoveAnime, hitAnime, teleportOut, teleportIn;
+	Animation idleAnime, moveAnime, jumpAnime, swingAnime, swingComboAnime, fireIdleAnime, fireMoveAnime, megaIdleAnime, megaMoveAnime, hitAnime, teleportOutAnime, teleportInAnime;
 
 	AssetLord Assets = GameScreen.getInstance().getAssetLord();
 	TextureAtlas gameAtlas;
@@ -138,7 +141,7 @@ public class Player {
 	
 	public Player(World w){
 		_player = this;
-		world = w;		
+		world = w;
 		
 		position.x = startPos.x = bWIDTH/4 ;
 		position.y = startPos.y = bHEIGHT/2  - height/2;
@@ -264,6 +267,11 @@ public class Player {
 		
 		
 		getSkinTexture();
+		
+		if(LevelGenerate.CURRENT_LEVEL > MINIMUM_DASH_LEVEL)
+			CAN_DASH = true;
+		else
+			CAN_DASH = false;
 	}
 	
 	//set the starting point of player according to entry portal
@@ -283,7 +291,13 @@ public class Player {
 		//playerSprite.setSize(height*1.2f * playerSprite.getWidth()/playerSprite.getHeight(), height*1.2f);
 		playerSprite.setSize(width*3f, width * 3f * playerSprite.getHeight()/playerSprite.getWidth());
 		playerSprite.setOrigin(playerSprite.getWidth()/2, playerSprite.getHeight()/2);
-		
+
+		playerSpriteWidth = playerSprite.getWidth();
+		playerSpriteHeight = playerSprite.getHeight();
+
+		teleportSprite = new Sprite();
+		teleportSprite.setSize(playerSpriteWidth, playerSpriteHeight*3);
+		teleportSprite.setOrigin(teleportSprite.getWidth()/2, teleportSprite.getHeight()/2);
 		
 		TextureRegion idleSheet[] = new TextureRegion[2];
 		
@@ -329,6 +343,25 @@ public class Player {
 		swingComboAnime = new Animation(0.1f, playerSwingComboSheet);
 		swingComboAnime.setPlayMode(PlayMode.NORMAL);
 		
+		TextureRegion playerTeleportInSheet[] = new TextureRegion[6];		
+		playerTeleportInSheet[0] = gameAtlas.findRegion("teleport-5");
+		playerTeleportInSheet[1] = gameAtlas.findRegion("teleport-4");
+		playerTeleportInSheet[2] = gameAtlas.findRegion("teleport-3");
+		playerTeleportInSheet[3] = gameAtlas.findRegion("teleport-2");
+		playerTeleportInSheet[4] = gameAtlas.findRegion("teleport-1");
+		playerTeleportInSheet[5] = gameAtlas.findRegion("teleport-0");
+		teleportInAnime = new Animation(0.1f, playerTeleportInSheet);
+		teleportInAnime.setPlayMode(PlayMode.NORMAL);
+		
+		TextureRegion playerTeleportOutSheet[] = new TextureRegion[6];		
+		playerTeleportOutSheet[0] = gameAtlas.findRegion("teleport-0");
+		playerTeleportOutSheet[1] = gameAtlas.findRegion("teleport-1");
+		playerTeleportOutSheet[2] = gameAtlas.findRegion("teleport-2");
+		playerTeleportOutSheet[3] = gameAtlas.findRegion("teleport-3");
+		playerTeleportOutSheet[4] = gameAtlas.findRegion("teleport-4");
+		playerTeleportOutSheet[5] = gameAtlas.findRegion("teleport-5");
+		teleportOutAnime = new Animation(0.1f, playerTeleportOutSheet);
+		teleportOutAnime.setPlayMode(PlayMode.NORMAL);
 		
 		TextureRegion playerHitSheet[] = new TextureRegion[4];
 		playerHitSheet[0] = gameAtlas.findRegion("hit-anime-player-1");//new TextureRegion(tHit1);
@@ -383,6 +416,8 @@ public class Player {
 		
 		playerSprite.setPosition(position.x - playerSprite.getWidth()/2, position.y - playerSprite.getHeight()*0.32f);
 
+		teleportSprite.setPosition(position.x - teleportSprite.getWidth()/2, startPos.y - teleportSprite.getHeight()*0.05f - 1);
+		
 		//make em flyy!!!
 		if(FLYING){
 			glow.setPosition(body.getPosition().x - glow.getWidth()/2, body.getPosition().y - glow.getHeight()/2);
@@ -464,14 +499,46 @@ public class Player {
 			playerSprite.setRegion(gameAtlas.findRegion("player-dash-1"));
 		}
 		
+
+		if(TELEPORTING_IN)			
+		{
+			//playerSprite.setSize(playerSpriteWidth, playerSpriteHeight*3);
+
+			//teleport animation into stage
+			//playerSprite.setRegion(teleportInAnime.getKeyFrame(winClock));
+			teleportSprite.setRegion(teleportInAnime.getKeyFrame(winClock));
+
+			if(teleportInAnime.getKeyFrameIndex(winClock) > (float)teleportInAnime.getKeyFrames().length/3f)
+				GameScreen.getInstance().shakeThatAss(true);
+
+		}else if(TELEPORTING_OUT)			
+		{
+			//playerSprite.setSize(playerSpriteWidth, playerSpriteHeight*3);
+
+			//teleport animation out of stage
+			//playerSprite.setRegion(teleportOutAnime.getKeyFrame(winClock));
+			teleportSprite.setRegion(teleportOutAnime.getKeyFrame(winClock));
+
+			if(teleportInAnime.getKeyFrameIndex(winClock) > (float)teleportInAnime.getKeyFrames().length/3f)
+				GameScreen.getInstance().shakeThatAss(true);
+			
+		}else{
+			//playerSprite.setSize(playerSpriteWidth, playerSpriteHeight);
+		}
+		
 		if(LEFT_DIRECTION)	
 			playerSprite.setFlip(true, false);
 		
 		//if(PLAYER_DRAW && !GOT_HIT && !DEAD)
-		if(!SWING_STORED)
+		//if(!SWING_STORED)
+			
+		if(TELEPORTING_IN || TELEPORTING_OUT)
+			teleportSprite.draw(batch);
+		else if(!LevelGenerate.CURRENT_LEVEL_CLEARED)
 			playerSprite.draw(batch);
-		else
-			playerSprite.draw(batch,0.6f);
+		
+		//else
+		//	playerSprite.draw(batch,0.6f);
 
 	}
 	
@@ -642,6 +709,11 @@ public class Player {
 		dashParticle.allowCompletion();
 		dashLeftParticle.allowCompletion();
 
+		
+		if(LevelGenerate.CURRENT_LEVEL > MINIMUM_DASH_LEVEL)
+			CAN_DASH = true;
+		else
+			CAN_DASH = false;
 	}
 	
 	public void fireBullets(){
@@ -868,7 +940,7 @@ public class Player {
 		//button count == Need taps - 1 
 		if(pKeys.get(MyInputProcessor.CONTROL.LEFT) == true || pKeys.get(MyInputProcessor.CONTROL.RIGHT) == true)
 		{
-			if(!DEAD && DASH_BUTTON_COUNT == 1 && dashButtonCooler > 0 && !DASHING && lastDashDirectionLeft == LEFT_DIRECTION){
+			if(CAN_DASH && !DEAD && DASH_BUTTON_COUNT == 1 && dashButtonCooler > 0 && !DASHING && lastDashDirectionLeft == LEFT_DIRECTION){
 		
 			DASHING = true;
 			startDashEffect();

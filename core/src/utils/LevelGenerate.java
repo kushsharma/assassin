@@ -61,7 +61,7 @@ public class LevelGenerate {
 	public static boolean WORLD_FLIPPED = false; //if gravity is flipped
 	public static boolean LEVEL_LOADED = false;
 	public static int CURRENT_LEVEL = 1;
-	public static int MAX_LEVELS = 3;
+	public static int MAX_LEVELS = 5;
 	
 	TiledMap tileMap;
 	TmxMapLoader tileLoader;
@@ -156,6 +156,12 @@ public class LevelGenerate {
 				break;
 			case 3:
 				tileMap = tileLoader.load("levels/level-3.tmx");
+				break;
+			case 4:
+				tileMap = tileLoader.load("levels/level-4.tmx");
+				break;
+			case 5:
+				tileMap = tileLoader.load("levels/level-5.tmx");
 				break;
 			case -1:
 				//negative values for multiplayer levels
