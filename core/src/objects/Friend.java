@@ -42,7 +42,7 @@ public class Friend {
 	private Vector2 position = new Vector2();
 	Vector2 startPos = new Vector2();
 	private float Speed = 4.6f * 0.8f; // 4.6f
-	private float Jump = 1.45f;
+	private float Jump = 1.40f;
 	private float gravityScale = 0f;
 	
 	public boolean GLOWING = false;

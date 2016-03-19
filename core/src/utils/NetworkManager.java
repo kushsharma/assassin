@@ -194,13 +194,23 @@ public class NetworkManager {
 	        	   final NetworkGameInit gi = (NetworkGameInit) object;	        	   
 	        	   //update enemies
 
-	        	   EventQueue.invokeLater(new Runnable() {
-						public void run () {
-							//client killed someone
-							MyGame.sop("Updating Enemies");
+//	        	   EventQueue.invokeLater(new Runnable() {
+//						public void run () {
+//							//client killed someone
+//							MyGame.sop("Updating Enemies");
+//							LevelGenerate.getInstance().updateEnemyPos(gi);
+//						}
+//					});
+	        	   
+	        	   Timer.schedule(new Task(){
+		   			    @Override
+		   			    public void run() {
+		   			    	//client killed someone
+
+		   			    	MyGame.sop("Updating Enemies");
 							LevelGenerate.getInstance().updateEnemyPos(gi);
-						}
-					});
+		   			    }
+	   				}, 1);
 	        	   
 	           }
 	           
@@ -378,21 +388,31 @@ public class NetworkManager {
 	        	   final NetworkGameInit gi = (NetworkGameInit) object;	        	   
 	        	   //update enemies
 	        	   
-//	        	   Timer.schedule(new Task(){
-//	   			    @Override
-//	   			    public void run() {
-//	   			    	MyGame.sop("Updating Enemies");
-//						LevelGenerate.getInstance().updateEnemyPos(gi);
-//	   			    }
-//	   				}, 0);
-	        	   EventQueue.invokeLater(new Runnable() {
-						public void run () {
-							
-							MyGame.sop("Updating Enemies");
-							LevelGenerate.getInstance().updateEnemyPos(gi);
-							// Closing the frame calls the close listener which will stop the client's update thread.
-						}
-					});
+	        	   Timer.schedule(new Task(){
+	   			    @Override
+	   			    public void run() {
+	   			    	MyGame.sop("Updating Enemies");
+						LevelGenerate.getInstance().updateEnemyPos(gi);
+	   			    }
+	   				}, 1);
+	        	   
+//	        	   EventQueue.invokeLater(new Runnable() {
+//						public void run () {
+//							
+//							MyGame.sop("Updating Enemies");
+//							LevelGenerate.getInstance().updateEnemyPos(gi);
+//							// Closing the frame calls the close listener which will stop the client's update thread.
+//						}
+//					});
+	        	   
+//	        	   new Thread(){
+//	        		   public void run () {
+//							
+//							MyGame.sop("Updating Enemies");
+//							LevelGenerate.getInstance().updateEnemyPos(gi);
+//							// Closing the frame calls the close listener which will stop the client's update thread.
+//						}
+//	        	   }.start();
 	        	   
 	           }
 	           

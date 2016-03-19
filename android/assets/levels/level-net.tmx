@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-up" width="94" height="40" tilewidth="32" tileheight="32" nextobjectid="57">
+<map version="1.0" orientation="orthogonal" renderorder="right-up" width="94" height="40" tilewidth="32" tileheight="32" nextobjectid="58">
  <tileset firstgid="1" name="tileset" tilewidth="32" tileheight="32" spacing="2" tilecount="225" columns="15">
   <image source="tileset-pad.png" width="512" height="512"/>
  </tileset>
  <layer name="Platform" width="94" height="40">
   <data encoding="base64" compression="zlib">
-   eJztlG0KwjAQRIeq/4t6gFHwCB7Be3s0q1IIMZV+JB1r58HgZpuS8jB7hikNm5yjXrw2+SHsXQFh7woIe1dA2LsCwt4VEPaugLB3BYS9KyDsXQFh7woIe1dA2LsCwt4VEPaugLB3BYS9KyDsXQFh7woIe1dA2LsCwt4VEPaugHh73gD3NvZenkuiZ+/luSZ6Xd4rvO4FtkEd9trfEqTOC+ulMcT7FOrM+5bOLdFLzZ6xdP0/+9S5z53jbu56nrtJJHUHTF6Iz7myRO81ljWjiE/vqdkzBIWDf/D+7FVBxs7nb3W4jp9vo31DvmPq+3PVXd73QQ5NjpnrcB0/P0b7hnzH1Pfnqru8n5yisXd7X1Ps3d7XFHv/He8PVbNeeA==
+   eJztlFEKwjAQRIda/0V7gFHwCB7Be3s0q1IIaSrGJh2L82Bws01JeZg9wdSGfU5RL16b8hD2roCwdwWEvSsg7F0BYe8KCHtXQNi7AsLeFRD2roCwdwWEvSsg7F0BYe8KCHtXQNi7AsLeFRD2roCwdwWEvSsg7F0BYe8KCHtXQLw8b4DbEHuvzznRs/f6XBK9Ke8NnvcCbVCHveG3Bqnzwnpt5Hifw67wvrVzTfRSs+dbpv6fn9Slz13ibm4/PHeTSOoOmLIQ47myRu87rGtGEWPvqdmTg8KB2nvu2cTY+6PXBPl2Pr+rw3X8vI325XzH3PeXqqe874Mc+nSF63AdP++ifTnfMff9peop70enauzd3v8p9m7v/xR7/x3vdxYCXog=
   </data>
  </layer>
  <objectgroup name="PlatformOb">
@@ -24,6 +24,7 @@
   <object id="54" x="2848" y="320" width="126.667" height="448.667"/>
   <object id="55" x="672" y="864" width="32" height="32"/>
   <object id="56" x="992" y="864" width="32" height="32"/>
+  <object id="57" x="2464" y="992" width="32" height="32"/>
  </objectgroup>
  <objectgroup name="EnemyOb">
   <object id="21" x="1312" y="928" width="32" height="32"/>
